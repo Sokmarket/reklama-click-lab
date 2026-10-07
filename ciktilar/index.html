@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>HTML5 Çıktı Arşivi</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    min-height:100%;
+    background:#070a10;
+    color:#f4f7fb;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+body{
+    padding:20px;
+}
+
+main{
+    width:min(100%,700px);
+    margin:auto;
+}
+
+.header{
+    background:#111722;
+    border:1px solid #283244;
+    border-radius:22px;
+    padding:22px;
+    margin-bottom:18px;
+}
+
+h1{
+    margin:0 0 8px;
+    font-size:25px;
+}
+
+.sub{
+    color:#929eb0;
+    font-size:14px;
+}
+
+.list{
+    display:grid;
+    gap:10px;
+}
+
+.item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:16px 18px;
+    background:#111722;
+    border:1px solid #283244;
+    border-radius:16px;
+}
+
+.number{
+    font-weight:800;
+    font-size:18px;
+}
+
+.date{
+    color:#8f9bad;
+    font-size:12px;
+}
+
+.open{
+    color:#fff;
+    text-decoration:none;
+    background:#202a3a;
+    border-radius:10px;
+    padding:9px 13px;
+    white-space:nowrap;
+}
+
+.open:hover{
+    background:#2b374b;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<section class="header">
+    <h1>HTML5 Çıktı Arşivi</h1>
+    <div class="sub">
+        GitHub Pages üzerinde kayıtlı tüm çıktılar
+    </div>
+</section>
+
+<section class="list">
+<article class="item">
+    <div>
+        <div class="number">Çıktı #001</div>
+        <div class="date">HTML5</div>
+    </div>
+    <a class="open" href="./001.html">Aç</a>
+</article>
+</section>
+
+<section class="header" style="margin-top:18px">
+    <div class="sub">
+        Toplam çıktı: 1
+    </div>
+</section>
+
+</main>
+
+</body>
+</html>
