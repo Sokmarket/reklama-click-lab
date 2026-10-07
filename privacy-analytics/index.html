@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
+
+<meta charset="utf-8">
 
 <meta name="viewport"
 content="width=device-width,
@@ -18,7 +19,8 @@ box-sizing:border-box;
 -webkit-tap-highlight-color:transparent;
 }
 
-html,body{
+html,
+body{
 margin:0;
 padding:0;
 width:100%;
@@ -48,25 +50,25 @@ position:fixed;
 left:12px;
 right:12px;
 bottom:12px;
-background:#171717;
+padding:16px;
+background:#151515;
 border:1px solid #303030;
 border-radius:14px;
-padding:15px;
 color:#fff;
-box-shadow:0 10px 35px #000;
-z-index:20;
+box-shadow:0 12px 40px rgba(0,0,0,.65);
+z-index:100;
 }
 
 .consent h2{
-font-size:14px;
 margin:0 0 8px;
+font-size:14px;
 }
 
 .consent p{
-font-size:11px;
-line-height:1.5;
-color:#aaa;
 margin:0 0 12px;
+font-size:11px;
+line-height:1.55;
+color:#aaa;
 }
 
 .buttons{
@@ -78,7 +80,7 @@ button{
 flex:1;
 border:0;
 border-radius:8px;
-padding:10px;
+padding:11px;
 font-size:12px;
 }
 
@@ -97,6 +99,7 @@ display:none;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -116,10 +119,10 @@ class="consent">
 <h2>Gizlilik ve ziyaret analitiği</h2>
 
 <p>
-Bu sayfada güvenlik ve ziyaret ölçümü amacıyla
-bağlantı IP adresi, ziyaret zamanı ve tarayıcı
-bilgisi kaydedilebilir. Devam ederek bu analitik
-kayda izin vermiş olursunuz.
+Güvenlik ve ziyaret ölçümü amacıyla bağlantı
+IP adresi, ziyaret zamanı ve tarayıcı bilgisi
+kaydedilebilir. Kayıt yalnızca onay vermeniz
+halinde yapılır.
 </p>
 
 <div class="buttons">
@@ -151,21 +154,23 @@ const ref =
 params.get("ref") ||
 "A001";
 
-function hide(){
+function hideConsent(){
+
 document
 .getElementById("consent")
 .classList
 .add("hidden");
+
 }
 
 function rejectTracking(){
-
-hide();
 
 localStorage.setItem(
 "analytics_consent",
 "0"
 );
+
+hideConsent();
 
 }
 
@@ -176,10 +181,11 @@ localStorage.setItem(
 "1"
 );
 
-hide();
+hideConsent();
 
 try{
 
+const response =
 await fetch(
 "/track",
 {
@@ -195,11 +201,17 @@ ref:ref
 }
 );
 
-}catch(e){
+if(!response.ok){
+console.warn(
+"Analitik kaydı başarısız."
+);
+}
 
-console.error(
-"Analytics:",
-e
+}catch(error){
+
+console.warn(
+"Analitik bağlantısı başarısız:",
+error
 );
 
 }

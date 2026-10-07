@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
+
 <head>
 
-<meta charset="UTF-8">
+<meta charset="utf-8">
 
 <meta name="viewport"
 content="width=device-width,
@@ -21,7 +22,9 @@ margin:0;
 padding:12px;
 background:#080808;
 color:#eee;
-font-family:Arial,sans-serif;
+font-family:
+Arial,
+sans-serif;
 }
 
 .app{
@@ -33,37 +36,41 @@ margin:auto;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:8px 4px 12px;
+padding:8px 3px 12px;
 }
 
 .title{
-font-weight:bold;
 font-size:14px;
+font-weight:800;
 }
 
 .count{
-font-size:11px;
+font-size:10px;
 color:#777;
 }
 
 .card{
 background:#111;
 border:1px solid #242424;
-border-radius:12px;
+border-radius:13px;
 overflow:hidden;
 margin-bottom:8px;
+}
+
+.section{
+padding:10px;
+background:#161616;
+font-size:10px;
+font-weight:800;
+letter-spacing:.5px;
 }
 
 .row{
 display:grid;
 grid-template-columns:100px 1fr;
-border-bottom:1px solid #202020;
+border-top:1px solid #202020;
 padding:9px;
-font-size:10px;
-}
-
-.row:last-child{
-border-bottom:0;
+font-size:9px;
 }
 
 .label{
@@ -75,13 +82,23 @@ color:#ddd;
 word-break:break-word;
 }
 
+button{
+border:1px solid #303030;
+background:#151515;
+color:#ddd;
+border-radius:7px;
+padding:9px 12px;
+margin:0 4px 8px 0;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
-font-size:9px;
+font-size:8px;
 }
 
-th,td{
+th,
+td{
 padding:8px;
 border-bottom:1px solid #222;
 text-align:left;
@@ -89,20 +106,11 @@ vertical-align:top;
 }
 
 th{
-color:#777;
-}
-
-button{
-border:1px solid #303030;
-background:#171717;
-color:#ddd;
-border-radius:7px;
-padding:9px 12px;
-margin-bottom:8px;
+color:#666;
 }
 
 .ok{
-color:#63d18a;
+color:#62d28b;
 }
 
 </style>
@@ -116,12 +124,12 @@ color:#63d18a;
 <div class="header">
 
 <div class="title">
-IP ANALYTICS ENGINE
+IP OSINT ENGINE
 </div>
 
 <div
-class="count"
-id="count">
+id="count"
+class="count">
 0 kayıt
 </div>
 
@@ -129,17 +137,28 @@ id="count">
 
 <div class="card">
 
+<div class="section">
+SYSTEM
+</div>
+
 <div class="row">
-<div class="label">Durum</div>
+<div class="label">Status</div>
 <div class="value ok">
-İzinli analitik
+Consent-based analytics
 </div>
 </div>
 
 <div class="row">
-<div class="label">Amaç</div>
+<div class="label">Storage</div>
 <div class="value">
-Ziyaret / tıklama ölçümü
+Local SQLite
+</div>
+</div>
+
+<div class="row">
+<div class="label">Limit</div>
+<div class="value">
+500 latest records
 </div>
 </div>
 
@@ -155,26 +174,32 @@ JSON Kaydet
 
 <div class="card">
 
+<div class="section">
+VISITS
+</div>
+
 <table>
 
 <thead>
 
 <tr>
 <th>ID</th>
-<th>Zaman</th>
+<th>TIME</th>
 <th>IP</th>
 <th>REF</th>
-<th>Browser</th>
+<th>UA</th>
 </tr>
 
 </thead>
 
 <tbody id="logs">
+
 <tr>
 <td colspan="5">
 Yükleniyor...
 </td>
 </tr>
+
 </tbody>
 
 </table>
@@ -187,9 +212,22 @@ Yükleniyor...
 
 let logs=[];
 
+function esc(value){
+
+return String(value ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
 async function loadLogs(){
 
-const r =
+try{
+
+const response =
 await fetch(
 "/api/logs",
 {
@@ -197,8 +235,15 @@ cache:"no-store"
 }
 );
 
+if(!response.ok){
+throw new Error(
+"HTTP " +
+response.status
+);
+}
+
 logs =
-await r.json();
+await response.json();
 
 document
 .getElementById("count")
@@ -212,37 +257,47 @@ document
 
 tbody.innerHTML="";
 
-for(const x of logs){
+if(!logs.length){
+
+tbody.innerHTML =
+"<tr><td colspan='5'>Henüz kayıt yok.</td></tr>";
+
+return;
+
+}
+
+for(const row of logs){
 
 const tr =
 document.createElement("tr");
 
-const browser =
-(x.user_agent || "")
-.substring(0,80);
-
-tr.innerHTML=`
-<td>${escapeHtml(x.id)}</td>
-<td>${escapeHtml(x.timestamp)}</td>
-<td>${escapeHtml(x.ip)}</td>
-<td>${escapeHtml(x.ref)}</td>
-<td>${escapeHtml(browser)}</td>
-`;
+tr.innerHTML =
+"<td>" + esc(row.id) + "</td>" +
+"<td>" + esc(row.timestamp) + "</td>" +
+"<td>" + esc(row.ip) + "</td>" +
+"<td>" + esc(row.ref) + "</td>" +
+"<td>" +
+esc(
+(row.user_agent || "")
+.substring(0,70)
+) +
+"</td>";
 
 tbody.appendChild(tr);
 
 }
 
+}catch(error){
+
+document
+.getElementById("logs")
+.innerHTML =
+"<tr><td colspan='5'>" +
+"Rapor alınamadı: " +
+esc(error.message) +
+"</td></tr>";
+
 }
-
-function escapeHtml(x){
-
-return String(x ?? "")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
 
 }
 
@@ -266,17 +321,35 @@ type:
 const a =
 document.createElement("a");
 
-a.href =
+const objectURL =
 URL.createObjectURL(blob);
 
-a.download =
-"analytics-report.json";
+a.href=objectURL;
+a.download="analytics-report.json";
+
+document.body.appendChild(a);
 
 a.click();
+
+a.remove();
+
+setTimeout(
+()=>{
+URL.revokeObjectURL(
+objectURL
+);
+},
+1000
+);
 
 }
 
 loadLogs();
+
+setInterval(
+loadLogs,
+10000
+);
 
 </script>
 
