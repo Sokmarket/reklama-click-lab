@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no">
+
+<title>IP OSINT Report</title>
+
+<style>
+:root{
+    --bg:#080808;
+    --panel:#101010;
+    --panel2:#151515;
+    --line:#242424;
+    --text:#f4f4f4;
+    --muted:#777;
+    --label:#686868;
+    --green:#61d28a;
+    --blue:#78aefc;
+}
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+body{
+    padding:12px;
+}
+
+.app{
+    width:100%;
+    max-width:720px;
+    margin:0 auto;
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:7px 3px 10px;
+}
+
+.title{
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.5px;
+}
+
+.status{
+    font-size:8px;
+    color:#666;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid #1d1d1d;
+    border-radius:13px;
+    margin-bottom:8px;
+    overflow:hidden;
+}
+
+.section-title{
+    height:29px;
+    display:flex;
+    align-items:center;
+    padding:0 11px;
+    background:#161616;
+    color:#ededed;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.35px;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:42% 58%;
+    min-height:25px;
+    border-top:1px solid #1c1c1c;
+    align-items:center;
+}
+
+.label{
+    padding:5px 9px;
+    color:#666;
+    font-size:8px;
+}
+
+.value{
+    padding:5px 9px;
+    color:#ddd;
+    font-size:8px;
+    overflow-wrap:anywhere;
+}
+
+.ok{
+    color:var(--green);
+}
+
+.link{
+    color:var(--blue);
+}
+
+.actions{
+    display:flex;
+    gap:6px;
+    padding:9px 0 3px;
+}
+
+button{
+    appearance:none;
+    border:1px solid #292929;
+    background:#151515;
+    color:#ddd;
+    border-radius:6px;
+    padding:7px 10px;
+    font-size:9px;
+    cursor:pointer;
+}
+
+button:active{
+    transform:scale(.97);
+}
+
+.footer{
+    color:#555;
+    font-size:7px;
+    line-height:1.5;
+    text-align:center;
+    padding:7px 10px 14px;
+}
+
+#jsonBox{
+    display:none;
+    white-space:pre-wrap;
+    word-break:break-word;
+    background:#050505;
+    border:1px solid #222;
+    border-radius:8px;
+    padding:10px;
+    margin-top:7px;
+    color:#aaa;
+    font:8px/1.5 monospace;
+}
+
+@media(max-width:390px){
+    body{
+        padding:8px;
+    }
+
+    .row{
+        grid-template-columns:40% 60%;
+    }
+
+    .label,
+    .value{
+        font-size:7.5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <div class="title">IP OSINT ENGINE</div>
+        <div class="status" id="status">Analiz tamamlanıyor</div>
+    </div>
+
+    <!-- IP -->
+
+    <section class="card">
+        <div class="section-title">IP</div>
+
+        <div class="row">
+            <div class="label">Public IP</div>
+            <div class="value" id="publicIp">Alınıyor...</div>
+        </div>
+
+        <div class="row">
+            <div class="label">IP Version</div>
+            <div class="value" id="ipVersion">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Reverse DNS</div>
+            <div class="value" id="reverseDns">PTR kontrol ediliyor...</div>
+        </div>
+    </section>
+
+    <!-- NETWORK -->
+
+    <section class="card">
+        <div class="section-title">NETWORK</div>
+
+        <div class="row">
+            <div class="label">ASN</div>
+            <div class="value" id="asn">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">ISP / Organization</div>
+            <div class="value" id="org">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">CIDR / Route</div>
+            <div class="value" id="cidr">N/A</div>
+        </div>
+    </section>
+
+    <!-- GEO -->
+
+    <section class="card">
+        <div class="section-title">GEO</div>
+
+        <div class="row">
+            <div class="label">Country</div>
+            <div class="value" id="country">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Region</div>
+            <div class="value" id="region">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">City</div>
+            <div class="value" id="city">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Timezone</div>
+            <div class="value" id="timezone">—</div>
+        </div>
+    </section>
+
+    <!-- REPUTATION -->
+
+    <section class="card">
+        <div class="section-title">REPUTATION</div>
+
+        <div class="row">
+            <div class="label">VPN</div>
+            <div class="value" id="vpn">N/A</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Proxy</div>
+            <div class="value" id="proxy">N/A</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Tor</div>
+            <div class="value" id="tor">N/A</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Abuse</div>
+            <div class="value" id="abuse">N/A</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Datacenter</div>
+            <div class="value" id="datacenter">N/A</div>
+        </div>
+    </section>
+
+    <!-- OSINT -->
+
+    <section class="card">
+        <div class="section-title">OSINT</div>
+
+        <div class="row">
+            <div class="label">RDAP</div>
+            <div class="value" id="rdap">Kontrol ediliyor...</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Public DNS</div>
+            <div class="value" id="dns">Kontrol ediliyor...</div>
+        </div>
+    </section>
+
+    <!-- FINGERPRINT -->
+
+    <section class="card">
+        <div class="section-title">FINGERPRINT</div>
+
+        <div class="row">
+            <div class="label">Browser</div>
+            <div class="value" id="browser">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Platform</div>
+            <div class="value" id="platform">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Language</div>
+            <div class="value" id="language">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Screen</div>
+            <div class="value" id="screen">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Viewport</div>
+            <div class="value" id="viewport">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Touch</div>
+            <div class="value" id="touch">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Timezone</div>
+            <div class="value" id="fpTimezone">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Color Depth</div>
+            <div class="value" id="colorDepth">—</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Connection</div>
+            <div class="value" id="connection">N/A</div>
+        </div>
+    </section>
+
+    <!-- REPORT -->
+
+    <section class="card">
+        <div class="section-title">REPORT</div>
+
+        <div class="row">
+            <div class="label">Risk Score</div>
+            <div class="value" id="risk">N/A</div>
+        </div>
+
+        <div class="row">
+            <div class="label">REF</div>
+            <div class="value" id="ref">A001</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Click Time</div>
+            <div class="value" id="clickTime">—</div>
+        </div>
+    </section>
+
+    <div class="actions">
+        <button onclick="toggleJSON()">JSON Göster</button>
+        <button onclick="saveJSON()">JSON Kaydet</button>
+        <button onclick="saveHTML()">HTML Rapor</button>
+    </div>
+
+    <pre id="jsonBox"></pre>
+
+    <div class="footer">
+        Bu rapor yalnızca teknik IP/ağ ve tarayıcı telemetrisi sağlar.
+        IP konumu yaklaşık olabilir; IP adresi tek başına belirli bir kişiyi
+        kesin olarak tanımlamaz.
+    </div>
+
+</div>
+
+<script>
+"use strict";
+
+const data = {
+    ip: null,
+    ipVersion: null,
+    reverseDns: "PTR kaydı bulunamadı",
+    asn: null,
+    org: null,
+    cidr: "N/A",
+    country: null,
+    region: null,
+    city: null,
+    timezone: null,
+    vpn: "N/A",
+    proxy: "N/A",
+    tor: "N/A",
+    abuse: "N/A",
+    datacenter: "N/A",
+    rdap: "N/A",
+    dns: "PTR kaydı bulunamadı",
+    browser: null,
+    platform: navigator.platform || "N/A",
+    language: navigator.language || "N/A",
+    screen: screen.width + "x" + screen.height,
+    viewport: innerWidth + "x" + innerHeight,
+    touch: ("ontouchstart" in window || navigator.maxTouchPoints > 0) ? "Evet" : "Hayır",
+    fpTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "N/A",
+    colorDepth: screen.colorDepth || "N/A",
+    connection: "N/A",
+    risk: "N/A",
+    ref: new URLSearchParams(location.search).get("ref") || "A001",
+    clickTime: new Date().toLocaleString("tr-TR")
+};
+
+function set(id,value){
+    const el=document.getElementById(id);
+    if(el) el.textContent =
+        value === undefined || value === null || value === ""
+        ? "N/A"
+        : value;
+}
+
+function detectBrowser(){
+    const ua=navigator.userAgent;
+
+    if(/Edg\//i.test(ua)) return "Edge";
+    if(/OPR\//i.test(ua)) return "Opera";
+    if(/Chrome\//i.test(ua)) return "Chrome";
+    if(/Firefox\//i.test(ua)) return "Firefox";
+    if(/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) return "Safari";
+
+    return "Unknown";
+}
+
+function fingerprint(){
+    data.browser=detectBrowser();
+
+    const c=navigator.connection ||
+            navigator.mozConnection ||
+            navigator.webkitConnection;
+
+    if(c){
+        const parts=[];
+
+        if(c.effectiveType) parts.push(c.effectiveType);
+        if(c.rtt !== undefined) parts.push("RTT: " + c.rtt + " ms");
+        if(c.downlink !== undefined) parts.push("Downlink: " + c.downlink + " Mbps");
+
+        if(parts.length) data.connection=parts.join(" | ");
+    }
+
+    set("browser",data.browser);
+    set("platform",data.platform);
+    set("language",data.language);
+    set("screen",data.screen);
+    set("viewport",data.viewport);
+    set("touch",data.touch);
+    set("fpTimezone",data.fpTimezone);
+    set("colorDepth",data.colorDepth);
+    set("connection",data.connection);
+    set("ref",data.ref);
+    set("clickTime",data.clickTime);
+}
+
+function renderNetwork(){
+    set("publicIp",data.ip);
+    set("ipVersion",data.ipVersion);
+    set("reverseDns",data.reverseDns);
+    set("asn",data.asn);
+    set("org",data.org);
+    set("cidr",data.cidr);
+
+    set("country",data.country);
+    set("region",data.region);
+    set("city",data.city);
+    set("timezone",data.timezone);
+
+    set("vpn",data.vpn);
+    set("proxy",data.proxy);
+    set("tor",data.tor);
+    set("abuse",data.abuse);
+    set("datacenter",data.datacenter);
+
+    set("rdap",data.rdap);
+    set("dns",data.dns);
+
+    set("risk",data.risk);
+}
+
+async function getIP(){
+    const r=await fetch("https://api.ipify.org?format=json",
+        {cache:"no-store"});
+    if(!r.ok) throw new Error("IP alınamadı");
+
+    const j=await r.json();
+    return j.ip;
+}
+
+async function getGeo(ip){
+    const r=await fetch("https://ipwho.is/" + encodeURIComponent(ip),
+        {cache:"no-store"});
+
+    if(!r.ok) throw new Error("IP geo alınamadı");
+
+    return await r.json();
+}
+
+async function getRDAP(ip){
+    try{
+        const r=await fetch(
+            "https://rdap.org/ip/" + encodeURIComponent(ip),
+            {cache:"no-store"}
+        );
+
+        if(!r.ok) return null;
+
+        return await r.json();
+    }catch(e){
+        return null;
+    }
+}
+
+async function run(){
+    fingerprint();
+
+    try{
+        data.ip=await getIP();
+        data.ipVersion=data.ip.includes(":") ? "IPv6" : "IPv4";
+
+        renderNetwork();
+
+        const geo=await getGeo(data.ip);
+
+        if(geo && geo.success !== false){
+            data.country=geo.country || null;
+            data.region=geo.region || null;
+            data.city=geo.city || null;
+
+            if(geo.timezone){
+                data.timezone=
+                    geo.timezone.id ||
+                    geo.timezone.name ||
+                    null;
+            }
+
+            if(geo.connection){
+                data.asn=geo.connection.asn
+                    ? "AS" + geo.connection.asn
+                    : null;
+
+                data.org=
+                    geo.connection.org ||
+                    geo.connection.isp ||
+                    null;
+
+                data.cidr=
+                    geo.connection.domain ||
+                    "N/A";
+            }
+        }
+
+        renderNetwork();
+
+        const rdap=await getRDAP(data.ip);
+
+        if(rdap){
+            data.rdap="RDAP bulundu";
+
+            const events=Array.isArray(rdap.events)
+                ? rdap.events : [];
+
+            const network=rdap.cidr0_cidrs ||
+                           rdap.cidr1_cidrs;
+
+            if(network && network.length){
+                data.cidr=JSON.stringify(network);
+            }
+
+            if(rdap.name){
+                data.org=data.org || rdap.name;
+            }
+        }
+
+        renderNetwork();
+
+        document.getElementById("status").textContent =
+            "Analiz tamamlandı";
+
+    }catch(error){
+
+        document.getElementById("status").textContent =
+            "Analiz tamamlanamadı";
+
+        data.ip="Alınamadı";
+        data.risk="N/A";
+
+        renderNetwork();
+    }
+
+    updateJSON();
+}
+
+function updateJSON(){
+    document.getElementById("jsonBox").textContent =
+        JSON.stringify(data,null,2);
+}
+
+function toggleJSON(){
+    const box=document.getElementById("jsonBox");
+
+    if(box.style.display==="block"){
+        box.style.display="none";
+    }else{
+        updateJSON();
+        box.style.display="block";
+    }
+}
+
+function saveJSON(){
+    updateJSON();
+
+    const blob=new Blob(
+        [JSON.stringify(data,null,2)],
+        {type:"application/json"}
+    );
+
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="ip-report-" +
+        (data.ref || "A001") +
+        ".json";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(()=>{
+        URL.revokeObjectURL(a.href);
+    },1000);
+}
+
+function saveHTML(){
+
+    const html="<!DOCTYPE html>\n" +
+        document.documentElement.outerHTML;
+
+    const blob=new Blob(
+        [html],
+        {type:"text/html;charset=utf-8"}
+    );
+
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="ip-report-" +
+        (data.ref || "A001") +
+        ".html";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(()=>{
+        URL.revokeObjectURL(a.href);
+    },1000);
+}
+
+run();
+</script>
+
+</body>
+</html>
