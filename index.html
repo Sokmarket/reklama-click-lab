@@ -1,47 +1,45 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Reklam">
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,
+      maximum-scale=1,user-scalable=no">
+
 <title>Reklam</title>
 
 <style>
-* {
-    box-sizing: border-box;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
 }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background: #fff;
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-body {
-    overflow: hidden;
+a{
+  display:block;
+  width:100%;
+  height:100%;
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
 }
 
-.reklam-link {
-    display: block;
-    width: 100%;
-    height: 100dvh;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.reklam-gorsel {
-    display: block;
-    width: 100%;
-    height: 100dvh;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    object-fit: contain;
+img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  user-select:none;
+  -webkit-user-drag:none;
+  pointer-events:auto;
 }
 </style>
 </head>
@@ -49,15 +47,14 @@ body {
 <body>
 
 <a
-    class="reklam-link"
-    href="https://raw.githubusercontent.com/arzuoglumammad-star/reklama-click-lab/main/reklam.png"
-    aria-label="Reklam görselini aç"
+  href="https://arzuoglumammad-star.github.io/reklama-click-lab/"
+  aria-label="Reklam"
 >
-    <img
-        class="reklam-gorsel"
-        src="./reklam.png"
-        alt="Reklam"
-    >
+  <img
+    src="./reklam.png"
+    alt="Reklam"
+    draggable="false"
+  >
 </a>
 
 </body>
