@@ -13,34 +13,35 @@
 
 html,
 body {
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
-    width: 100%;
-    min-height: 100%;
     background: #fff;
 }
 
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
 }
 
-.ad-link {
+.reklam-link {
     display: block;
     width: 100%;
     height: 100dvh;
+    margin: 0;
+    padding: 0;
     cursor: pointer;
     text-decoration: none;
 }
 
-.ad-image {
+.reklam-gorsel {
     display: block;
     width: 100%;
     height: 100dvh;
-    object-fit: contain;
+    margin: 0;
+    padding: 0;
     border: 0;
+    object-fit: contain;
 }
 </style>
 </head>
@@ -48,13 +49,13 @@ body {
 <body>
 
 <a
-    class="ad-link"
-    href="https://raw.githubusercontent.com/arzuoglumammad-star/resim-public/main/resim-tikla.png"
+    class="reklam-link"
+    href="https://raw.githubusercontent.com/arzuoglumammad-star/reklama-click-lab/main/reklam.png"
     aria-label="Reklam görselini aç"
 >
     <img
-        class="ad-image"
-        src="https://raw.githubusercontent.com/arzuoglumammad-star/resim-public/main/resim-tikla.png"
+        class="reklam-gorsel"
+        src="./reklam.png"
         alt="Reklam"
     >
 </a>
