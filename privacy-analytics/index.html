@@ -1,223 +1,401 @@
 <!doctype html>
 <html lang="tr">
 <head>
-
 <meta charset="utf-8">
-
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1,
-maximum-scale=1,
-user-scalable=no">
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<title>Reklam</title>
+<title>Ziyaretçi IP Raporu</title>
 
 <style>
-
 *{
-box-sizing:border-box;
--webkit-tap-highlight-color:transparent;
+  box-sizing:border-box;
 }
 
-html,
+html,body{
+  margin:0;
+  min-height:100%;
+  background:#070a10;
+  color:#f4f7fb;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
 body{
-margin:0;
-padding:0;
-width:100%;
-height:100%;
-background:#000;
-overflow:hidden;
-font-family:Arial,sans-serif;
+  min-height:100vh;
+  padding:18px;
 }
 
-.page{
-width:100%;
-height:100%;
-display:flex;
-align-items:center;
-justify-content:center;
+.container{
+  width:min(100%,520px);
+  margin:auto;
 }
 
-img{
-width:100%;
-height:100%;
-object-fit:contain;
-display:block;
+.card{
+  background:#10151f;
+  border:1px solid #242d3c;
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:14px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
 }
 
-.consent{
-position:fixed;
-left:12px;
-right:12px;
-bottom:12px;
-padding:16px;
-background:#151515;
-border:1px solid #303030;
-border-radius:14px;
-color:#fff;
-box-shadow:0 12px 40px rgba(0,0,0,.65);
-z-index:100;
+h1{
+  margin:0 0 10px;
+  font-size:24px;
 }
 
-.consent h2{
-margin:0 0 8px;
-font-size:14px;
+h2{
+  margin:0 0 15px;
+  font-size:14px;
+  letter-spacing:.12em;
+  color:#9daabd;
 }
 
-.consent p{
-margin:0 0 12px;
-font-size:11px;
-line-height:1.55;
-color:#aaa;
-}
-
-.buttons{
-display:flex;
-gap:8px;
+p{
+  color:#aeb8c8;
+  line-height:1.55;
 }
 
 button{
-flex:1;
-border:0;
-border-radius:8px;
-padding:11px;
-font-size:12px;
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:15px;
+  background:#f5f7fa;
+  color:#080b10;
+  font-weight:800;
+  font-size:16px;
 }
 
-.accept{
-background:#fff;
-color:#000;
-}
-
-.reject{
-background:#292929;
-color:#aaa;
+button:disabled{
+  opacity:.5;
 }
 
 .hidden{
-display:none;
+  display:none!important;
 }
 
-</style>
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:11px 0;
+  border-bottom:1px solid #202837;
+}
 
+.row:last-child{
+  border-bottom:0;
+}
+
+.label{
+  color:#8f9caf;
+}
+
+.value{
+  text-align:right;
+  word-break:break-word;
+  max-width:62%;
+}
+
+.ip{
+  font-size:22px;
+  font-weight:800;
+  word-break:break-all;
+}
+
+.status{
+  margin-top:15px;
+  color:#aeb8c8;
+  font-size:14px;
+}
+
+.small{
+  font-size:12px;
+  color:#7f8a9c;
+}
+</style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="container">
 
-<img
-src="../reklam.png"
-alt="Reklam">
+  <div class="card" id="consentCard">
 
-</div>
+    <h1>Ziyaretçi Analitiği</h1>
 
-<div
-id="consent"
-class="consent">
+    <p>
+      Bu sayfa public IP adresinizi ve temel teknik tarayıcı
+      bilgilerinizi görüntülemek için kullanılır.
+    </p>
 
-<h2>Gizlilik ve ziyaret analitiği</h2>
+    <p class="small">
+      Bilgiler bu sayfada gösterilir. Devam etmek için açıkça
+      onay vermeniz gerekir.
+    </p>
 
-<p>
-Güvenlik ve ziyaret ölçümü amacıyla bağlantı
-IP adresi, ziyaret zamanı ve tarayıcı bilgisi
-kaydedilebilir. Kayıt yalnızca onay vermeniz
-halinde yapılır.
-</p>
+    <button id="consentBtn">
+      Kabul ediyorum
+    </button>
 
-<div class="buttons">
+    <div class="status" id="status"></div>
 
-<button
-class="reject"
-onclick="rejectTracking()">
-Reddet
-</button>
+  </div>
 
-<button
-class="accept"
-onclick="acceptTracking()">
-Kabul ediyorum
-</button>
+  <div id="report" class="hidden">
 
-</div>
+    <div class="card">
+
+      <h2>IP</h2>
+
+      <div class="row">
+        <span class="label">Public IP</span>
+        <span class="value ip" id="ip">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">IP Version</span>
+        <span class="value" id="version">-</span>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h2>FINGERPRINT</h2>
+
+      <div class="row">
+        <span class="label">Browser</span>
+        <span class="value" id="browser">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Platform</span>
+        <span class="value" id="platform">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Language</span>
+        <span class="value" id="language">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Screen</span>
+        <span class="value" id="screen">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Viewport</span>
+        <span class="value" id="viewport">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Touch</span>
+        <span class="value" id="touch">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Timezone</span>
+        <span class="value" id="timezone">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Color Depth</span>
+        <span class="value" id="depth">-</span>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h2>REPORT</h2>
+
+      <div class="row">
+        <span class="label">REF</span>
+        <span class="value" id="ref">-</span>
+      </div>
+
+      <div class="row">
+        <span class="label">Click Time</span>
+        <span class="value" id="time">-</span>
+      </div>
+
+    </div>
+
+  </div>
 
 </div>
 
 <script>
+"use strict";
 
-const params =
-new URLSearchParams(
-location.search
-);
+const $ = id => document.getElementById(id);
 
-const ref =
-params.get("ref") ||
-"A001";
+const params = new URLSearchParams(location.search);
 
-function hideConsent(){
+const REF =
+  params.get("ref") ||
+  "A001";
 
-document
-.getElementById("consent")
-.classList
-.add("hidden");
+function detectBrowser(){
 
+  const ua = navigator.userAgent;
+
+  if(/Edg\//i.test(ua))
+    return "Microsoft Edge";
+
+  if(/OPR\//i.test(ua))
+    return "Opera";
+
+  if(/Chrome\//i.test(ua) &&
+     !/Edg\//i.test(ua))
+    return "Google Chrome";
+
+  if(/Firefox\//i.test(ua))
+    return "Mozilla Firefox";
+
+  if(/Safari\//i.test(ua) &&
+     !/Chrome\//i.test(ua))
+    return "Safari";
+
+  return "Bilinmiyor";
 }
 
-function rejectTracking(){
+function detectVersion(ip){
 
-localStorage.setItem(
-"analytics_consent",
-"0"
-);
+  if(ip.includes(":"))
+    return "IPv6";
 
-hideConsent();
+  if(/^\d+\.\d+\.\d+\.\d+$/.test(ip))
+    return "IPv4";
 
+  return "Bilinmiyor";
 }
 
-async function acceptTracking(){
+function fillBrowserData(){
 
-localStorage.setItem(
-"analytics_consent",
-"1"
-);
+  $("browser").textContent = detectBrowser();
 
-hideConsent();
+  $("platform").textContent =
+    navigator.platform || "Bilinmiyor";
 
-try{
+  $("language").textContent =
+    navigator.language || "Bilinmiyor";
 
-const response =
-await fetch(
-"/track",
-{
-method:"POST",
-headers:{
-"Content-Type":
-"application/json"
-},
-body:JSON.stringify({
-consent:true,
-ref:ref
-})
-}
-);
+  $("screen").textContent =
+    `${screen.width} × ${screen.height}`;
 
-if(!response.ok){
-console.warn(
-"Analitik kaydı başarısız."
-);
-}
+  $("viewport").textContent =
+    `${innerWidth} × ${innerHeight}`;
 
-}catch(error){
+  $("touch").textContent =
+    navigator.maxTouchPoints > 0
+      ? "Evet"
+      : "Hayır";
 
-console.warn(
-"Analitik bağlantısı başarısız:",
-error
-);
+  $("timezone").textContent =
+    Intl.DateTimeFormat().resolvedOptions().timeZone ||
+    "Bilinmiyor";
 
+  $("depth").textContent =
+    `${screen.colorDepth || "-"} bit`;
+
+  $("ref").textContent = REF;
+
+  $("time").textContent =
+    new Date().toLocaleString("tr-TR");
 }
 
+async function getPublicIP(){
+
+  const services = [
+    "https://api64.ipify.org?format=json",
+    "https://api.ipify.org?format=json"
+  ];
+
+  for(const url of services){
+
+    try{
+
+      const controller =
+        new AbortController();
+
+      const timer =
+        setTimeout(
+          () => controller.abort(),
+          8000
+        );
+
+      const response =
+        await fetch(url,{
+          method:"GET",
+          cache:"no-store",
+          signal:controller.signal
+        });
+
+      clearTimeout(timer);
+
+      if(!response.ok)
+        continue;
+
+      const data =
+        await response.json();
+
+      if(data.ip)
+        return data.ip;
+
+    }catch(e){}
+  }
+
+  return null;
 }
 
+async function start(){
+
+  $("consentBtn").disabled = true;
+
+  $("status").textContent =
+    "Public IP bilgisi alınıyor...";
+
+  const ip =
+    await getPublicIP();
+
+  if(!ip){
+
+    $("status").textContent =
+      "Public IP alınamadı.";
+
+    $("consentBtn").disabled = false;
+
+    return;
+  }
+
+  localStorage.setItem(
+    "analytics_consent",
+    "true"
+  );
+
+  $("consentCard").classList.add("hidden");
+
+  $("report").classList.remove("hidden");
+
+  $("ip").textContent = ip;
+
+  $("version").textContent =
+    detectVersion(ip);
+
+  fillBrowserData();
+}
+
+$("consentBtn").addEventListener(
+  "click",
+  start
+);
 </script>
 
 </body>
