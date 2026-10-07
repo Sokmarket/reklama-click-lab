@@ -1,4 +1,10 @@
 __pycache__/
 *.py[cod]
+*.sqlite3
+*.db
 *.log
-.DS_Store
+*.pid
+.env
+.env.*
+privacy-analytics/server.log
+privacy-analytics/analytics.sqlite3

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1,
+maximum-scale=1,
+user-scalable=no">
+
+<title>Reklam</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+margin:0;
+padding:0;
+width:100%;
+height:100%;
+background:#000;
+overflow:hidden;
+font-family:Arial,sans-serif;
+}
+
+.page{
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+img{
+width:100%;
+height:100%;
+object-fit:contain;
+display:block;
+}
+
+.consent{
+position:fixed;
+left:12px;
+right:12px;
+bottom:12px;
+background:#171717;
+border:1px solid #303030;
+border-radius:14px;
+padding:15px;
+color:#fff;
+box-shadow:0 10px 35px #000;
+z-index:20;
+}
+
+.consent h2{
+font-size:14px;
+margin:0 0 8px;
+}
+
+.consent p{
+font-size:11px;
+line-height:1.5;
+color:#aaa;
+margin:0 0 12px;
+}
+
+.buttons{
+display:flex;
+gap:8px;
+}
+
+button{
+flex:1;
+border:0;
+border-radius:8px;
+padding:10px;
+font-size:12px;
+}
+
+.accept{
+background:#fff;
+color:#000;
+}
+
+.reject{
+background:#292929;
+color:#aaa;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<img
+src="../reklam.png"
+alt="Reklam">
+
+</div>
+
+<div
+id="consent"
+class="consent">
+
+<h2>Gizlilik ve ziyaret analitiği</h2>
+
+<p>
+Bu sayfada güvenlik ve ziyaret ölçümü amacıyla
+bağlantı IP adresi, ziyaret zamanı ve tarayıcı
+bilgisi kaydedilebilir. Devam ederek bu analitik
+kayda izin vermiş olursunuz.
+</p>
+
+<div class="buttons">
+
+<button
+class="reject"
+onclick="rejectTracking()">
+Reddet
+</button>
+
+<button
+class="accept"
+onclick="acceptTracking()">
+Kabul ediyorum
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const params =
+new URLSearchParams(
+location.search
+);
+
+const ref =
+params.get("ref") ||
+"A001";
+
+function hide(){
+document
+.getElementById("consent")
+.classList
+.add("hidden");
+}
+
+function rejectTracking(){
+
+hide();
+
+localStorage.setItem(
+"analytics_consent",
+"0"
+);
+
+}
+
+async function acceptTracking(){
+
+localStorage.setItem(
+"analytics_consent",
+"1"
+);
+
+hide();
+
+try{
+
+await fetch(
+"/track",
+{
+method:"POST",
+headers:{
+"Content-Type":
+"application/json"
+},
+body:JSON.stringify({
+consent:true,
+ref:ref
+})
+}
+);
+
+}catch(e){
+
+console.error(
+"Analytics:",
+e
+);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
