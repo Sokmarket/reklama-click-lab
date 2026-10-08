@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  ip-service:
+    build: .
+    container_name: ip-geo-service
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_ADDR=redis:6379
+
+  redis:
+    image: redis:alpine
+    container_name: ip-redis-cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+

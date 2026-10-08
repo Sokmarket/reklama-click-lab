@@ -27,6 +27,3 @@ privacy-analytics/.runtime/
 backups-final/
 backups-maxmind/
 .maxmind/
-*.key
-*.pem
-*.pyc

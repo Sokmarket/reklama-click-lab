@@ -1,43 +1,3 @@
-
-
-# === MAXMIND_ENV_LOADER_FINAL ===
-def _load_maxmind_credentials_runtime():
-    global MM_ACCOUNT_ID, MM_LICENSE_KEY
-
-    try:
-        if not globals().get("MM_ACCOUNT_ID"):
-            MM_ACCOUNT_ID = os.environ.get("MM_ACCOUNT_ID", "")
-
-        if not globals().get("MM_LICENSE_KEY"):
-            MM_LICENSE_KEY = os.environ.get("MM_LICENSE_KEY", "")
-
-        cfg = os.path.expanduser("~/.maxmind/config")
-
-        if os.path.isfile(cfg):
-            with open(cfg, "r", encoding="utf-8") as f:
-                for line in f:
-                    line=line.strip()
-
-                    if line.startswith("MM_ACCOUNT_ID="):
-                        value=line.split("=",1)[1].strip()
-                        value=value.strip("'").strip('"')
-                        if value:
-                            MM_ACCOUNT_ID=value
-
-                    elif line.startswith("MM_LICENSE_KEY="):
-                        value=line.split("=",1)[1].strip()
-                        value=value.strip("'").strip('"')
-                        if value:
-                            MM_LICENSE_KEY=value
-
-    except Exception as e:
-        try:
-            print("[MAXMIND CONFIG ERROR]",type(e).__name__)
-        except Exception:
-            pass
-
-_load_maxmind_credentials_runtime()
-
 #!/usr/bin/env python3
 
 import os
@@ -54,98 +14,11 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-# REKLAMA_MAXMIND_CONFIG_LOADER_V2
-def _load_maxmind_credentials():
-    """
-    MaxMind credentials:
-    1) environment
-    2) ~/.maxmind/config
-    Secret values are never logged.
-    """
-    account = (
-        os.environ.get("MM_ACCOUNT_ID")
-        or os.environ.get("MAXMIND_ACCOUNT_ID")
-    )
-
-    license_key = (
-        os.environ.get("MM_LICENSE_KEY")
-        or os.environ.get("MAXMIND_LICENSE_KEY")
-    )
-
-    if account and license_key:
-        return account.strip(), license_key.strip()
-
-    config_path = os.path.expanduser("~/.maxmind/config")
-
-    try:
-        if os.path.isfile(config_path):
-            values = {}
-
-            with open(
-                config_path,
-                "r",
-                encoding="utf-8",
-                errors="replace"
-            ) as config_file:
-
-                for raw_line in config_file:
-                    line = raw_line.strip()
-
-                    if not line or line.startswith("#"):
-                        continue
-
-                    if "=" not in line:
-                        continue
-
-                    key, value = line.split("=", 1)
-
-                    key = key.strip()
-                    value = value.strip()
-
-                    if (
-                        len(value) >= 2
-                        and value[0] == value[-1]
-                        and value[0] in ("'", '"')
-                    ):
-                        value = value[1:-1]
-
-                    if key in (
-                        "MM_ACCOUNT_ID",
-                        "MAXMIND_ACCOUNT_ID",
-                    ):
-                        values["account"] = value
-
-                    elif key in (
-                        "MM_LICENSE_KEY",
-                        "MAXMIND_LICENSE_KEY",
-                    ):
-                        values["license_key"] = value
-
-            account = values.get("account")
-            license_key = values.get("license_key")
-
-    except Exception as exc:
-        try:
-            print(
-                "[MAXMIND CONFIG ERROR]",
-                type(exc).__name__,
-                flush=True
-            )
-        except Exception:
-            pass
-
-    if account and license_key:
-        return account.strip(), license_key.strip()
-
-    return None, None
-
-
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "analytics.sqlite3")
 
 HOST = "0.0.0.0"
-PORT = int(os.environ.get("PORT", str(8080)))
+PORT = 8080
 
 HASH_SALT = os.environ.get(
     "ANALYTICS_HASH_SALT",
@@ -270,388 +143,109 @@ def init_db():
 
 
 def maxmind_lookup(ip):
-    # --- MAXMIND CREDENTIAL SCOPE FIX ---
-    import os as _mm_os
-    _mm_account_id = (
-        _mm_os.getenv('MM_ACCOUNT_ID')
-        or _mm_os.getenv('MAXMIND_ACCOUNT_ID')
-    )
-    _mm_license_key = (
-        _mm_os.getenv('MM_LICENSE_KEY')
-        or _mm_os.getenv('MAXMIND_LICENSE_KEY')
-    )
-
-    # ~/.maxmind/config fallback
-    if not _mm_account_id or not _mm_license_key:
-        _mm_cfg = _mm_os.path.expanduser('~/.maxmind/config')
-        try:
-            if _mm_os.path.isfile(_mm_cfg):
-                with open(_mm_cfg, 'r', encoding='utf-8') as _fh:
-                    for _raw in _fh:
-                        _line = _raw.strip()
-                        if not _line or _line.startswith('#') or '=' not in _line:
-                            continue
-                        _key, _value = _line.split('=', 1)
-                        _key = _key.strip()
-                        _value = _value.strip()
-                        if len(_value) >= 2 and _value[0] == _value[-1] and _value[0] in "'\"":
-                            _value = _value[1:-1]
-                        if _key in ('MM_ACCOUNT_ID', 'MAXMIND_ACCOUNT_ID'):
-                            _mm_account_id = _value
-                        elif _key in ('MM_LICENSE_KEY', 'MAXMIND_LICENSE_KEY'):
-                            _mm_license_key = _value
-        except Exception:
-            pass
-
-    # Existing function code can use these canonical names.
-    account_id = _mm_account_id
-    license_key = _mm_license_key
-    # --- END MAXMIND CREDENTIAL SCOPE FIX ---
-
     """
-    MaxMind GeoLite2 City lookup.
-
-    Privacy:
-    - Raw IP is never written to SQLite.
-    - Credentials are read from environment/config.
-    - Private/local IPs are not queried.
+    MaxMind GeoLite enrichment.
+    Ham IP'yi sonuçta döndürmez; yalnızca gerekli enrichment alanlarını döndürür.
+    Private/loopback IP'ler MaxMind'e gönderilmez.
     """
-
-    import os
-    import json
-    import ipaddress
-    import urllib.request
-    import urllib.error
-
-    result = {
-        "maxmind_success": 0,
-        "country": None,
-        "country_code": None,
-        "continent": None,
-        "continent_code": None,
-        "region": None,
-        "region_code": None,
-        "city": None,
-        "postal_code": None,
-        "latitude": None,
-        "longitude": None,
-        "accuracy_radius_km": None,
-        "timezone": None,
-        "network": None,
-        "asn": None,
-        "organization": None,
-    }
-
-    # ----------------------------------------------
-    # IP validation
-    # ----------------------------------------------
-
     try:
-        addr = ipaddress.ip_address(ip)
+        parsed_ip = ipaddress.ip_address(ip)
+
+        if (
+            parsed_ip.is_private
+            or parsed_ip.is_loopback
+            or parsed_ip.is_reserved
+            or parsed_ip.is_link_local
+        ):
+            return {
+                "maxmind_success": False,
+                "maxmind_error": "PRIVATE_OR_LOCAL_IP"
+            }
+
     except ValueError:
-        result["maxmind_error"] = "INVALID_IP"
-        return result
+        return {
+            "maxmind_success": False,
+            "maxmind_error": "INVALID_IP"
+        }
 
-    if (
-        addr.is_private
-        or addr.is_loopback
-        or addr.is_reserved
-        or addr.is_link_local
-        or addr.is_multicast
-        or addr.is_unspecified
-    ):
-        result["maxmind_error"] = "PRIVATE_OR_LOCAL_IP"
-        return result
-
-    # ----------------------------------------------
-    # Credentials
-    # ----------------------------------------------
-
-    account_id = (
-        os.getenv("MM_ACCOUNT_ID")
-        or os.getenv("MAXMIND_ACCOUNT_ID")
+    account_id = os.environ.get("MM_ACCOUNT_ID") or os.environ.get(
+        "MAXMIND_ACCOUNT_ID", ""
+    )
+    license_key = os.environ.get("MM_LICENSE_KEY") or os.environ.get(
+        "MAXMIND_LICENSE_KEY", ""
     )
 
-    license_key = (
-        os.getenv("MM_LICENSE_KEY")
-        or os.getenv("MAXMIND_LICENSE_KEY")
-    )
-
-    # Environment yoksa ~/.maxmind/config oku.
     if not account_id or not license_key:
+        return {
+            "maxmind_success": False,
+            "maxmind_error": "MAXMIND_CREDENTIALS_MISSING"
+        }
 
-        config_candidates = [
-            os.path.expanduser("~/.maxmind/config"),
-        ]
+    url = "https://geolite.info/geoip/v2.1/city/" + ip
 
-        for config_path in config_candidates:
+    token = base64.b64encode(
+        f"{account_id}:{license_key}".encode("utf-8")
+    ).decode("ascii")
 
-            try:
-                if not os.path.isfile(config_path):
-                    continue
-
-                with open(
-                    config_path,
-                    "r",
-                    encoding="utf-8"
-                ) as fh:
-
-                    for raw_line in fh:
-
-                        line = raw_line.strip()
-
-                        if not line or line.startswith("#"):
-                            continue
-
-                        if "=" not in line:
-                            continue
-
-                        key,value = line.split("=",1)
-
-                        key = key.strip()
-                        value = value.strip()
-
-                        if (
-                            len(value) >= 2
-                            and value[0] == "'"
-                            and value[-1] == "'"
-                        ):
-                            value = value[1:-1]
-
-                        elif (
-                            len(value) >= 2
-                            and value[0] == '"'
-                            and value[-1] == '"'
-                        ):
-                            value = value[1:-1]
-
-                        if key in (
-                            "MM_ACCOUNT_ID",
-                            "MAXMIND_ACCOUNT_ID"
-                        ):
-                            account_id = value
-
-                        elif key in (
-                            "MM_LICENSE_KEY",
-                            "MAXMIND_LICENSE_KEY"
-                        ):
-                            license_key = value
-
-            except Exception as exc:
-                result["maxmind_error"] = (
-                    "CONFIG_READ_" +
-                    type(exc).__name__
-                )
-
-    if not account_id or not license_key:
-        result["maxmind_error"] = "MAXMIND_CREDENTIALS_MISSING"
-        return result
-
-    # ----------------------------------------------
-    # MaxMind API
-    # ----------------------------------------------
-
-    url = (
-        "https://geolite.info/geoip/v2.1/city/"
-        + str(ip)
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Basic {token}",
+            "Accept": "application/json",
+            "User-Agent": "reklama-click-lab-analytics/1.0"
+        }
     )
 
     try:
+        with urllib.request.urlopen(request, timeout=5) as response:
+            data = json.loads(response.read().decode("utf-8"))
 
-        import base64
+        country = data.get("country", {})
+        continent = data.get("continent", {})
+        city = data.get("city", {})
+        location = data.get("location", {})
+        traits = data.get("traits", {})
+        subdivisions = data.get("subdivisions", [])
 
-        token = base64.b64encode(
-            (
-                str(account_id) +
-                ":" +
-                str(license_key)
-            ).encode("utf-8")
-        ).decode("ascii")
-
-        request = urllib.request.Request(
-            url,
-            headers={
-                "Authorization": "Basic " + token,
-                "Accept": "application/json",
-                "User-Agent":
-                    "reklama-click-lab-analytics/1.0",
-            },
-            method="GET",
-        )
-
-        with urllib.request.urlopen(
-            request,
-            timeout=15
-        ) as response:
-
-            status = response.getcode()
-            body = response.read()
-
-        if status != 200:
-            result["maxmind_error"] = (
-                "HTTP_" + str(status)
+        return {
+            "maxmind_success": True,
+            "country": country.get("names", {}).get("en"),
+            "country_code": country.get("iso_code"),
+            "continent": continent.get("names", {}).get("en"),
+            "continent_code": continent.get("code"),
+            "region": (
+                subdivisions[0].get("names", {}).get("en")
+                if subdivisions else None
+            ),
+            "region_code": (
+                subdivisions[0].get("iso_code")
+                if subdivisions else None
+            ),
+            "city": city.get("names", {}).get("en"),
+            "postal_code": data.get("postal", {}).get("code"),
+            "latitude": location.get("latitude"),
+            "longitude": location.get("longitude"),
+            "accuracy_radius_km": location.get("accuracy_radius"),
+            "timezone": location.get("time_zone"),
+            "network": traits.get("network"),
+            "asn": traits.get("autonomous_system_number"),
+            "organization": traits.get(
+                "autonomous_system_organization"
             )
-            return result
-
-        data = json.loads(
-            body.decode("utf-8")
-        )
-
-        # ------------------------------------------
-        # Country
-        # ------------------------------------------
-
-        country = data.get("country") or {}
-
-        result["country"] = (
-            country.get("names",{}).get("en")
-            or country.get("names",{}).get("tr")
-        )
-
-        result["country_code"] = (
-            country.get("iso_code")
-        )
-
-        # ------------------------------------------
-        # Continent
-        # ------------------------------------------
-
-        continent = data.get("continent") or {}
-
-        result["continent"] = (
-            continent.get("names",{}).get("en")
-        )
-
-        result["continent_code"] = (
-            continent.get("code")
-        )
-
-        # ------------------------------------------
-        # Subdivisions
-        # ------------------------------------------
-
-        subdivisions = (
-            data.get("subdivisions")
-            or []
-        )
-
-        if subdivisions:
-
-            subdivision = subdivisions[0] or {}
-
-            result["region"] = (
-                subdivision
-                .get("names",{})
-                .get("en")
-                or
-                subdivision
-                .get("names",{})
-                .get("tr")
-            )
-
-            result["region_code"] = (
-                subdivision.get("iso_code")
-            )
-
-        # ------------------------------------------
-        # City
-        # ------------------------------------------
-
-        city = data.get("city") or {}
-
-        result["city"] = (
-            city.get("names",{}).get("en")
-            or city.get("names",{}).get("tr")
-        )
-
-        # ------------------------------------------
-        # Postal
-        # ------------------------------------------
-
-        postal = data.get("postal") or {}
-
-        result["postal_code"] = postal.get("code")
-
-        # ------------------------------------------
-        # Location
-        # ------------------------------------------
-
-        location = data.get("location") or {}
-
-        result["latitude"] = location.get("latitude")
-        result["longitude"] = location.get("longitude")
-        result["accuracy_radius_km"] = (
-            location.get("accuracy_radius")
-        )
-        result["timezone"] = location.get("time_zone")
-
-        # ------------------------------------------
-        # Network
-        # ------------------------------------------
-
-        result["network"] = data.get("network")
-
-        # ------------------------------------------
-        # ASN
-        # ------------------------------------------
-
-        traits = data.get("traits") or {}
-
-        result["asn"] = traits.get("autonomous_system_number")
-
-        result["organization"] = (
-            traits.get("autonomous_system_organization")
-        )
-
-        result["maxmind_success"] = 1
-
-        return result
-
-    except urllib.error.HTTPError as exc:
-
-        result["maxmind_error"] = (
-            "HTTP_" + str(exc.code)
-        )
-
-        return result
-
-    except urllib.error.URLError as exc:
-
-        result["maxmind_error"] = (
-            "URLERROR_" +
-            type(exc.reason).__name__
-        )
-
-        return result
-
-    except TimeoutError:
-
-        result["maxmind_error"] = "TIMEOUT"
-
-        return result
-
-    except json.JSONDecodeError:
-
-        result["maxmind_error"] = "INVALID_JSON"
-
-        return result
+        }
 
     except Exception as exc:
-
-        result["maxmind_error"] = (
-            type(exc).__name__
+        print(
+            "[MAXMIND ERROR]",
+            type(exc).__name__,
+            str(exc),
+            flush=True
         )
 
-        try:
-            print(
-                "[MAXMIND ERROR]",
-                type(exc).__name__,
-                flush=True
-            )
-        except Exception:
-            pass
-
-        return result
+        return {
+            "maxmind_success": False,
+            "maxmind_error": type(exc).__name__
+        }
 
 
 
@@ -748,39 +342,23 @@ class Handler(BaseHTTPRequestHandler):
             report_file = os.path.join(BASE_DIR, "report.html")
 
             try:
-                with open(report_file, "rb") as f:
-                    body = f.read()
+                body = report_file.read_bytes()
             except FileNotFoundError:
                 self.send_error(404, "report.html not found")
                 return
 
             self.send_response(200)
-            self.send_header(
-                "Content-Type",
-                "text/html; charset=utf-8"
-            )
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
-            self.send_header(
-                "Cache-Control",
-                "no-store, no-cache, must-revalidate"
-            )
-            self.send_header(
-                "Pragma",
-                "no-cache"
-            )
-            self.send_header(
-                "X-Content-Type-Options",
-                "nosniff"
-            )
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("X-Content-Type-Options", "nosniff")
             self.end_headers()
             self.wfile.write(body)
             return
 
-
-# ### REKLAMA_REPORT_API_FINAL ###
+        
+        # ### REKLAMA_REPORT_API_FINAL ###
         if parsed.path == "/api/report":
             try:
                 conn = sqlite3.connect(DB_PATH)

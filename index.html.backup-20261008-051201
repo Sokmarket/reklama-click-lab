@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,
+      maximum-scale=1,user-scalable=no">
+<title>İndirim Kuponu</title>
+<meta name="description" content="İndirim Kuponu — günlük kampanyalar ve fırsatlar.">
+<meta property="og:title" content="İndirim Kuponu">
+<meta property="og:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://arzuoglumammad-star.github.io/reklama-click-lab/reklam.png">
+<meta property="og:image:alt" content="İndirim Kuponu">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="İndirim Kuponu">
+<meta name="twitter:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+a{
+  display:block;
+  width:100%;
+  height:100%;
+}
+img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+}
+</style>
+
+<style id="ad-fixed-image">
+.ad-image-link{
+  display:block;
+  width:100%;
+  max-width:100%;
+  text-decoration:none;
+}
+.ad-image-link img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  position:relative;
+  margin:0 auto;
+}
+</style>
+
+<style id="fullscreen-gallery-style">
+#galleryOverlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  width:100vw;
+  height:100dvh;
+  background:#000;
+  touch-action:none;
+}
+#galleryOverlay.is-open{
+  display:flex;
+}
+#galleryOverlay img{
+  display:block;
+  width:100vw;
+  height:100dvh;
+  max-width:100vw;
+  max-height:100dvh;
+  object-fit:contain;
+  object-position:center;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+  pointer-events:none;
+}
+#galleryClose{
+  position:absolute;
+  top:max(16px,env(safe-area-inset-top));
+  right:max(16px,env(safe-area-inset-right));
+  z-index:2;
+  width:44px;
+  height:44px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:50%;
+  background:rgba(0,0,0,.58);
+  color:#fff;
+  font:700 26px/42px Arial,sans-serif;
+  text-align:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+body.gallery-open{
+  overflow:hidden;
+}
+</style>
+
+</head>
+<body>
+<a id="clickTarget"
+   href="./privacy-analytics/?ref=AD001"
+   aria-label="İndirim Kuponu — tam ekran görüntülemek için tıklayın">
+  <img
+    src="./reklam.png"
+    alt="İndirim Kuponu"
+    draggable="false">
+</a>
+
+<div id="galleryOverlay"
+     role="dialog"
+     aria-modal="true"
+     aria-label="İndirim Kuponu tam ekran görsel">
+  <button id="galleryClose"
+          type="button"
+          aria-label="Görseli kapat">×</button>
+  <img
+    src="./reklam.png"
+    alt="İndirim Kuponu tam ekran">
+</div>
+<script>
+"use strict";
+
+const target=document.getElementById("clickTarget");
+const gallery=document.getElementById("galleryOverlay");
+const closeBtn=document.getElementById("galleryClose");
+
+if(location.hostname.endsWith(".github.io")){
+  target.href="./github-report.html?ref=AD001";
+}
+
+function openGallery(event){
+  event.preventDefault();
+
+  gallery.classList.add("is-open");
+  document.body.classList.add("gallery-open");
+
+  closeBtn.focus({preventScroll:true});
+}
+
+function closeGallery(){
+  gallery.classList.remove("is-open");
+  document.body.classList.remove("gallery-open");
+
+  target.focus({preventScroll:true});
+}
+
+target.addEventListener("click",openGallery);
+
+closeBtn.addEventListener("click",closeGallery);
+
+gallery.addEventListener("click",function(event){
+  if(event.target===gallery){
+    closeGallery();
+  }
+});
+
+document.addEventListener("keydown",function(event){
+  if(
+    event.key==="Escape" &&
+    gallery.classList.contains("is-open")
+  ){
+    closeGallery();
+  }
+});
+</script>
+<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
+<style id="osint-ip-menu-style">
+.osint-ip-link{
+  display:block;
+  margin:16px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#111722;
+  border:1px solid #252d3a;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+}
+</style>
+
+</body>
+</html>

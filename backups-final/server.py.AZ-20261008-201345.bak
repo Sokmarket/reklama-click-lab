@@ -1,43 +1,3 @@
-
-
-# === MAXMIND_ENV_LOADER_FINAL ===
-def _load_maxmind_credentials_runtime():
-    global MM_ACCOUNT_ID, MM_LICENSE_KEY
-
-    try:
-        if not globals().get("MM_ACCOUNT_ID"):
-            MM_ACCOUNT_ID = os.environ.get("MM_ACCOUNT_ID", "")
-
-        if not globals().get("MM_LICENSE_KEY"):
-            MM_LICENSE_KEY = os.environ.get("MM_LICENSE_KEY", "")
-
-        cfg = os.path.expanduser("~/.maxmind/config")
-
-        if os.path.isfile(cfg):
-            with open(cfg, "r", encoding="utf-8") as f:
-                for line in f:
-                    line=line.strip()
-
-                    if line.startswith("MM_ACCOUNT_ID="):
-                        value=line.split("=",1)[1].strip()
-                        value=value.strip("'").strip('"')
-                        if value:
-                            MM_ACCOUNT_ID=value
-
-                    elif line.startswith("MM_LICENSE_KEY="):
-                        value=line.split("=",1)[1].strip()
-                        value=value.strip("'").strip('"')
-                        if value:
-                            MM_LICENSE_KEY=value
-
-    except Exception as e:
-        try:
-            print("[MAXMIND CONFIG ERROR]",type(e).__name__)
-        except Exception:
-            pass
-
-_load_maxmind_credentials_runtime()
-
 #!/usr/bin/env python3
 
 import os
@@ -145,7 +105,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "analytics.sqlite3")
 
 HOST = "0.0.0.0"
-PORT = int(os.environ.get("PORT", str(8080)))
+PORT = 8080
 
 HASH_SALT = os.environ.get(
     "ANALYTICS_HASH_SALT",
@@ -270,44 +230,6 @@ def init_db():
 
 
 def maxmind_lookup(ip):
-    # --- MAXMIND CREDENTIAL SCOPE FIX ---
-    import os as _mm_os
-    _mm_account_id = (
-        _mm_os.getenv('MM_ACCOUNT_ID')
-        or _mm_os.getenv('MAXMIND_ACCOUNT_ID')
-    )
-    _mm_license_key = (
-        _mm_os.getenv('MM_LICENSE_KEY')
-        or _mm_os.getenv('MAXMIND_LICENSE_KEY')
-    )
-
-    # ~/.maxmind/config fallback
-    if not _mm_account_id or not _mm_license_key:
-        _mm_cfg = _mm_os.path.expanduser('~/.maxmind/config')
-        try:
-            if _mm_os.path.isfile(_mm_cfg):
-                with open(_mm_cfg, 'r', encoding='utf-8') as _fh:
-                    for _raw in _fh:
-                        _line = _raw.strip()
-                        if not _line or _line.startswith('#') or '=' not in _line:
-                            continue
-                        _key, _value = _line.split('=', 1)
-                        _key = _key.strip()
-                        _value = _value.strip()
-                        if len(_value) >= 2 and _value[0] == _value[-1] and _value[0] in "'\"":
-                            _value = _value[1:-1]
-                        if _key in ('MM_ACCOUNT_ID', 'MAXMIND_ACCOUNT_ID'):
-                            _mm_account_id = _value
-                        elif _key in ('MM_LICENSE_KEY', 'MAXMIND_LICENSE_KEY'):
-                            _mm_license_key = _value
-        except Exception:
-            pass
-
-    # Existing function code can use these canonical names.
-    account_id = _mm_account_id
-    license_key = _mm_license_key
-    # --- END MAXMIND CREDENTIAL SCOPE FIX ---
-
     """
     MaxMind GeoLite2 City lookup.
 
