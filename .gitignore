@@ -1,0 +1,32 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Databases
+*.sqlite3
+*.db
+
+# Runtime
+*.log
+*.pid
+*.port
+.port
+
+# Python
+__pycache__/
+*.py[cod]
+
+# MaxMind / protected data
+.maxmind/
+
+# Backups
+backups/
+backups-final/
+backups-maxmind/
+
+# Runtime directories
+privacy-analytics/.runtime/
+privacy-analytics/server.log
+privacy-analytics/analytics.sqlite3
