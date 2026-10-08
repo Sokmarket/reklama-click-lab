@@ -1,199 +1,518 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport"
-      content="width=device-width,initial-scale=1,
-      maximum-scale=1,user-scalable=no">
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
 <title>İndirim Kuponu</title>
-<meta name="description" content="İndirim Kuponu — günlük kampanyalar ve fırsatlar.">
-<meta property="og:title" content="İndirim Kuponu">
-<meta property="og:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://arzuoglumammad-star.github.io/reklama-click-lab/reklam.png">
-<meta property="og:image:alt" content="İndirim Kuponu">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="İndirim Kuponu">
-<meta name="twitter:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
+
+<meta name="description"
+      content="İndirim Kuponu">
+
+<meta name="theme-color"
+      content="#000000">
+
 <style>
-html,body{
-  margin:0;
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
   width:100%;
   height:100%;
-  background:#000;
+  margin:0;
+  padding:0;
   overflow:hidden;
+  background:#000;
 }
+
 body{
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
   display:flex;
   align-items:center;
   justify-content:center;
 }
-a{
-  display:block;
-  width:100%;
-  height:100%;
-}
-img{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  user-select:none;
-  -webkit-user-select:none;
-  -webkit-user-drag:none;
-}
-</style>
 
-<style id="ad-fixed-image">
-.ad-image-link{
-  display:block;
-  width:100%;
-  max-width:100%;
-  text-decoration:none;
-}
-.ad-image-link img{
-  display:block;
-  width:100%;
-  height:auto;
-  object-fit:contain;
-  position:relative;
-  margin:0 auto;
-}
-</style>
+/* ==================================================
+   ANA REKLAM ALANI
+   ================================================== */
 
-<style id="fullscreen-gallery-style">
-#galleryOverlay{
+#adPage{
   position:fixed;
   inset:0;
-  z-index:99999;
-  display:none;
+
+  width:100vw;
+  height:100dvh;
+
+  display:flex;
   align-items:center;
   justify-content:center;
-  width:100vw;
-  height:100dvh;
+
   background:#000;
-  touch-action:none;
 }
-#galleryOverlay.is-open{
-  display:flex;
-}
-#galleryOverlay img{
-  display:block;
+
+/*
+   GÖRSEL ARTIK LINK DEĞİL.
+   BUTTON MANTIĞIYLA ÇALIŞIYOR.
+*/
+
+#adButton{
+  position:relative;
+
   width:100vw;
   height:100dvh;
-  max-width:100vw;
-  max-height:100dvh;
+
+  margin:0;
+  padding:0;
+
+  border:0;
+  outline:0;
+
+  background:#000;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  appearance:none;
+  -webkit-appearance:none;
+
+  touch-action:manipulation;
+}
+
+#adButton img{
+  display:block;
+
+  width:100%;
+  height:100%;
+
   object-fit:contain;
   object-position:center;
+
   user-select:none;
   -webkit-user-select:none;
+
   -webkit-user-drag:none;
   pointer-events:none;
 }
-#galleryClose{
-  position:absolute;
-  top:max(16px,env(safe-area-inset-top));
-  right:max(16px,env(safe-area-inset-right));
-  z-index:2;
-  width:44px;
-  height:44px;
-  border:1px solid rgba(255,255,255,.28);
-  border-radius:50%;
-  background:rgba(0,0,0,.58);
-  color:#fff;
-  font:700 26px/42px Arial,sans-serif;
-  text-align:center;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-body.gallery-open{
+
+/* ==================================================
+   TAM EKRAN GALERİ
+   ================================================== */
+
+#fullscreenViewer{
+  position:fixed;
+
+  inset:0;
+
+  width:100vw;
+  height:100dvh;
+
+  z-index:999999;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:#000;
+
   overflow:hidden;
+
+  touch-action:none;
+}
+
+#fullscreenViewer.open{
+  display:flex;
+}
+
+#fullscreenImage{
+  display:block;
+
+  width:100vw;
+  height:100dvh;
+
+  max-width:100vw;
+  max-height:100dvh;
+
+  object-fit:contain;
+  object-position:center;
+
+  user-select:none;
+  -webkit-user-select:none;
+
+  -webkit-user-drag:none;
+
+  pointer-events:none;
+}
+
+/* ==================================================
+   KAPAT BUTTON
+   ================================================== */
+
+#closeViewer{
+  position:absolute;
+
+  z-index:1000000;
+
+  top:
+    max(
+      16px,
+      env(safe-area-inset-top)
+    );
+
+  right:
+    max(
+      16px,
+      env(safe-area-inset-right)
+    );
+
+  width:48px;
+  height:48px;
+
+  padding:0;
+
+  border:1px solid rgba(255,255,255,.30);
+
+  border-radius:50%;
+
+  background:rgba(0,0,0,.65);
+
+  color:#fff;
+
+  font-size:30px;
+  line-height:46px;
+
+  text-align:center;
+
+  cursor:pointer;
+
+  appearance:none;
+  -webkit-appearance:none;
+
+  touch-action:manipulation;
+}
+
+/* ==================================================
+   ERİŞİLEBİLİRLİK
+   ================================================== */
+
+button:focus{
+  outline:none;
+}
+
+/* Viewer açıldığında ana sayfa hareket etmez */
+body.viewer-open{
+  overflow:hidden;
+  position:fixed;
+  width:100%;
+  height:100%;
 }
 </style>
-
 </head>
-<body>
-<a id="clickTarget"
-   href="./privacy-analytics/?ref=AD001"
-   aria-label="İndirim Kuponu — tam ekran görüntülemek için tıklayın">
-  <img
-    src="./reklam.png"
-    alt="İndirim Kuponu"
-    draggable="false">
-</a>
 
-<div id="galleryOverlay"
-     role="dialog"
-     aria-modal="true"
-     aria-label="İndirim Kuponu tam ekran görsel">
-  <button id="galleryClose"
-          type="button"
-          aria-label="Görseli kapat">×</button>
+<body>
+
+<!-- =================================================
+     ANA REKLAM
+     ================================================= -->
+
+<main id="adPage">
+
+  <!--
+       BU BİR LINK DEĞİL.
+       URL'YE GİTMEZ.
+       TIKLANINCA JAVASCRIPT İLE TAM EKRAN AÇAR.
+  -->
+
+  <button
+    id="adButton"
+    type="button"
+    aria-label="İndirim Kuponu görselini tam ekran aç">
+
+    <img
+      src="./reklam.png"
+      alt="İndirim Kuponu"
+      draggable="false">
+
+  </button>
+
+</main>
+
+
+<!-- =================================================
+     TAM EKRAN GÖRÜNTÜLEYİCİ
+     ================================================= -->
+
+<section
+  id="fullscreenViewer"
+  aria-hidden="true"
+  role="dialog"
+  aria-label="İndirim Kuponu tam ekran görüntüleyici">
+
+  <button
+    id="closeViewer"
+    type="button"
+    aria-label="Görseli kapat"
+    title="Kapat">
+
+    ×
+
+  </button>
+
   <img
+    id="fullscreenImage"
     src="./reklam.png"
-    alt="İndirim Kuponu tam ekran">
-</div>
+    alt="İndirim Kuponu tam ekran"
+    draggable="false">
+
+</section>
+
+
 <script>
 "use strict";
 
-const target=document.getElementById("clickTarget");
-const gallery=document.getElementById("galleryOverlay");
-const closeBtn=document.getElementById("galleryClose");
+/*
+======================================================
+ REKLAM GÖRSELİ — BUTTON / FULLSCREEN MOTORU
+======================================================
+*/
 
-if(location.hostname.endsWith(".github.io")){
-  target.href="./github-report.html?ref=AD001";
-}
+const adButton =
+  document.getElementById("adButton");
 
-function openGallery(event){
-  event.preventDefault();
+const viewer =
+  document.getElementById("fullscreenViewer");
 
-  gallery.classList.add("is-open");
-  document.body.classList.add("gallery-open");
+const fullscreenImage =
+  document.getElementById("fullscreenImage");
 
-  closeBtn.focus({preventScroll:true});
-}
+const closeViewer =
+  document.getElementById("closeViewer");
 
-function closeGallery(){
-  gallery.classList.remove("is-open");
-  document.body.classList.remove("gallery-open");
 
-  target.focus({preventScroll:true});
-}
+/*
+======================================================
+ TAM EKRAN AÇ
+======================================================
+*/
 
-target.addEventListener("click",openGallery);
+function openViewer(event){
 
-closeBtn.addEventListener("click",closeGallery);
+  /*
+     Link olmadığı için URL değişmez.
+     Her ihtimale karşı varsayılan davranışı durdur.
+  */
 
-gallery.addEventListener("click",function(event){
-  if(event.target===gallery){
-    closeGallery();
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
   }
-});
 
-document.addEventListener("keydown",function(event){
-  if(
-    event.key==="Escape" &&
-    gallery.classList.contains("is-open")
-  ){
-    closeGallery();
+  viewer.classList.add("open");
+
+  viewer.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  document.body.classList.add(
+    "viewer-open"
+  );
+
+  /*
+     Tarayıcının gerçek Fullscreen API'sini
+     zorlamıyoruz.
+
+     Böylece adres çubuğu / tarayıcı
+     navigasyonu ile uğraşmıyoruz.
+
+     Viewer zaten viewport'un tamamını
+     kaplıyor.
+  */
+
+  closeViewer.focus({
+    preventScroll:true
+  });
+}
+
+
+/*
+======================================================
+ KAPAT
+======================================================
+*/
+
+function closeFullscreen(event){
+
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
   }
-});
+
+  viewer.classList.remove("open");
+
+  viewer.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  document.body.classList.remove(
+    "viewer-open"
+  );
+
+  adButton.focus({
+    preventScroll:true
+  });
+}
+
+
+/*
+======================================================
+ GÖRSELE DOKUN
+======================================================
+*/
+
+adButton.addEventListener(
+  "click",
+  openViewer,
+  {passive:false}
+);
+
+
+/*
+======================================================
+ KAPAT BUTTON
+======================================================
+*/
+
+closeViewer.addEventListener(
+  "click",
+  closeFullscreen,
+  {passive:false}
+);
+
+
+/*
+======================================================
+ SİYAH ALANA DOKUNARAK KAPAT
+======================================================
+*/
+
+viewer.addEventListener(
+  "click",
+  function(event){
+
+    if(event.target === viewer){
+      closeFullscreen(event);
+    }
+
+  },
+  {passive:false}
+);
+
+
+/*
+======================================================
+ ESC
+======================================================
+*/
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    if(
+      event.key === "Escape" &&
+      viewer.classList.contains("open")
+    ){
+
+      closeFullscreen(event);
+
+    }
+
+  }
+);
+
+
+/*
+======================================================
+ ANDROID / TARAYICI GERİ TUŞU
+======================================================
+*/
+
+history.replaceState(
+  {adPage:true},
+  "",
+  window.location.href
+);
+
+history.pushState(
+  {adViewer:false},
+  "",
+  window.location.href
+);
+
+window.addEventListener(
+  "popstate",
+  function(){
+
+    if(
+      viewer.classList.contains("open")
+    ){
+
+      closeFullscreen();
+
+      history.pushState(
+        {adViewer:false},
+        "",
+        window.location.href
+      );
+
+    }
+
+  }
+);
+
+
+/*
+======================================================
+ SAĞ TIK / UZUN BASMA MENÜSÜ
+======================================================
+*/
+
+fullscreenImage.addEventListener(
+  "contextmenu",
+  function(event){
+    event.preventDefault();
+  }
+);
+
+adButton.addEventListener(
+  "contextmenu",
+  function(event){
+    event.preventDefault();
+  }
+);
+
 </script>
-<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
-<style id="osint-ip-menu-style">
-.osint-ip-link{
-  display:block;
-  margin:16px 0;
-  padding:14px 16px;
-  border-radius:12px;
-  background:#111722;
-  border:1px solid #252d3a;
-  color:inherit;
-  text-decoration:none;
-  font-weight:700;
-}
-</style>
 
 </body>
 </html>
