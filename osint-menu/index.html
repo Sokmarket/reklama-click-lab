@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSINT IP Menü</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:#080b12;
+  color:#f5f7fb;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+main{
+  width:min(720px,100%);
+  margin:auto;
+  padding:24px 16px 40px;
+}
+
+h1{
+  margin:0 0 6px;
+  font-size:26px;
+}
+
+.subtitle{
+  color:#8f9bad;
+  margin-bottom:22px;
+}
+
+.card{
+  background:#111722;
+  border:1px solid #252d3a;
+  border-radius:16px;
+  padding:17px;
+  margin-bottom:12px;
+}
+
+.label{
+  color:#8f9bad;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.value{
+  margin-top:7px;
+  font-size:17px;
+  word-break:break-all;
+}
+
+.ok{
+  color:#7dd3fc;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+  font-weight:700;
+}
+
+.note{
+  margin-top:18px;
+  color:#8994a6;
+  font-size:12px;
+  line-height:1.5;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<h1>OSINT IP MENÜ</h1>
+<div class="subtitle">IPv4 / IPv6 bağlantı bilgisi</div>
+
+<div class="card">
+<div class="label">IPv4</div>
+<div class="value" id="ipv4">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">IPv6</div>
+<div class="value" id="ipv6">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">IP Sürümü</div>
+<div class="value ok" id="version">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">Durum</div>
+<div class="value" id="status">IP servisleri kontrol ediliyor...</div>
+</div>
+
+<button onclick="getIP()">YENİDEN KONTROL ET</button>
+
+<div class="note">
+IP bilgisi, ziyaretçinin tarayıcısından IPv4/IPv6 test servisleri
+aracılığıyla alınır. IPv6 bağlantısı olmayan ağlarda IPv6 bulunamayabilir.
+</div>
+
+</main>
+
+<script>
+async function getIP(){
+
+  const ipv4=document.getElementById("ipv4");
+  const ipv6=document.getElementById("ipv6");
+  const version=document.getElementById("version");
+  const status=document.getElementById("status");
+
+  ipv4.textContent="Kontrol ediliyor...";
+  ipv6.textContent="Kontrol ediliyor...";
+  version.textContent="Kontrol ediliyor...";
+  status.textContent="Kontrol ediliyor...";
+
+  let has4=false;
+  let has6=false;
+
+  try{
+    const r4=await fetch(
+      "https://api4.ipify.org?format=json",
+      {cache:"no-store"}
+    );
+
+    if(r4.ok){
+      const data4=await r4.json();
+
+      if(data4.ip){
+        ipv4.textContent=data4.ip;
+        has4=true;
+      }
+    }
+  }catch(e){
+    ipv4.textContent="IPv4 alınamadı";
+  }
+
+  try{
+    const r6=await fetch(
+      "https://api6.ipify.org?format=json",
+      {cache:"no-store"}
+    );
+
+    if(r6.ok){
+      const data6=await r6.json();
+
+      if(data6.ip){
+        ipv6.textContent=data6.ip;
+        has6=true;
+      }
+    }
+  }catch(e){
+    ipv6.textContent="IPv6 bulunamadı";
+  }
+
+  if(!has4 && ipv4.textContent==="Kontrol ediliyor...")
+    ipv4.textContent="IPv4 bulunamadı";
+
+  if(!has6 && ipv6.textContent==="Kontrol ediliyor...")
+    ipv6.textContent="IPv6 bulunamadı";
+
+  if(has4 && has6)
+    version.textContent="IPv4 + IPv6";
+  else if(has6)
+    version.textContent="IPv6";
+  else if(has4)
+    version.textContent="IPv4";
+  else
+    version.textContent="Tespit edilemedi";
+
+  status.textContent =
+    (has4 || has6)
+      ? "IP bilgisi alındı"
+      : "IP bilgisi alınamadı";
+}
+
+getIP();
+</script>
+
+</body>
+</html>
