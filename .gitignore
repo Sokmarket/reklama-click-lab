@@ -24,3 +24,9 @@ privacy-analytics/analytics.sqlite3
 privacy-analytics/.runtime/
 *.backup-*
 *.before-*
+backups-final/
+backups-maxmind/
+.maxmind/
+*.key
+*.pem
+*.pyc
