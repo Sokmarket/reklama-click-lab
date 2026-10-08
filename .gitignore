@@ -9,3 +9,15 @@ __pycache__/
 .env.*
 privacy-analytics/server.log
 privacy-analytics/analytics.sqlite3
+
+# OSINT / local runtime
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+*.pid
+.env
+.env.*
+privacy-analytics/server.log
+privacy-analytics/analytics.sqlite3
