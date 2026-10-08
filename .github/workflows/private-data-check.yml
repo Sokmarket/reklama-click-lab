@@ -1,0 +1,34 @@
+name: Private Data Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout application
+        uses: actions/checkout@v4
+
+      - name: Verify protected files are not committed
+        shell: bash
+        run: |
+          set -e
+
+          forbidden=(
+            ".env"
+            ".maxmind"
+          )
+
+          for item in "${forbidden[@]}"; do
+            if [ -e "$item" ]; then
+              echo "ERROR: protected item exists in repository: $item"
+              exit 1
+            fi
+          done
+
+          echo "Protected files are separated correctly."
