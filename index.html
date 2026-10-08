@@ -5,9 +5,16 @@
 <meta name="viewport"
       content="width=device-width,initial-scale=1,
       maximum-scale=1,user-scalable=no">
-
-<title>Reklam</title>
-
+<title>İndirim Kuponu</title>
+<meta name="description" content="İndirim Kuponu — günlük kampanyalar ve fırsatlar.">
+<meta property="og:title" content="İndirim Kuponu">
+<meta property="og:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://arzuoglumammad-star.github.io/reklama-click-lab/reklam.png">
+<meta property="og:image:alt" content="İndirim Kuponu">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="İndirim Kuponu">
+<meta name="twitter:description" content="Güncel indirim kuponunu görüntülemek için tıklayın.">
 <style>
 html,body{
   margin:0;
@@ -16,36 +23,43 @@ html,body{
   background:#000;
   overflow:hidden;
 }
-
 body{
   display:flex;
   align-items:center;
   justify-content:center;
 }
-
+a{
+  display:block;
+  width:100%;
+  height:100%;
+}
 img{
   display:block;
   width:100%;
   height:100%;
   object-fit:contain;
   object-position:center;
-
   user-select:none;
   -webkit-user-select:none;
   -webkit-user-drag:none;
-
-  cursor:default;
 }
 </style>
 </head>
-
 <body>
-
-<img
-  src="./reklam.png"
-  alt="Reklam"
-  draggable="false"
->
-
+<a id="clickTarget"
+   href="./privacy-analytics/?ref=AD001"
+   aria-label="İndirim Kuponu — görüntülemek için tıklayın">
+  <img
+    src="./reklam.png"
+    alt="İndirim Kuponu"
+    draggable="false">
+</a>
+<script>
+"use strict";
+const target=document.getElementById("clickTarget");
+if(location.hostname.endsWith(".github.io")){
+  target.href="./github-report.html?ref=AD001";
+}
+</script>
 </body>
 </html>
