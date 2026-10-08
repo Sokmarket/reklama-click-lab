@@ -1,4 +1,4 @@
-const CACHE = "kupon-pwa-v5";
+const CACHE = "kupon-pwa-v6";
 
 const FILES = [
   "./",
