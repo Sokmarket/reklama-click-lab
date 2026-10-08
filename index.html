@@ -112,79 +112,9 @@ if("serviceWorker" in navigator){
    reklam.png + yalnızca İNDİRİM KUPONU
    ===================================================== */
 
-async function shareImage() {
-  try {
-    const response = await fetch("./reklam.png", {
-      cache: "no-cache"
-    });
 
-    if (!response.ok) {
-      throw new Error("reklam.png yüklenemedi");
-    }
-
-    const blob = await response.blob();
-
-    const file = new File(
-      [blob],
-      "reklam.png",
-      {
-        type: blob.type || "image/png"
-      }
-    );
-
-    /* Android / WhatsApp:
-       Görsel + İNDİRİM KUPONU
-       URL gönderilmiyor.
-    */
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({ files: [file] })
-    ) {
-      await navigator.share({
-        files: [file],
-        title: "İNDİRİM KUPONU",
-        text: "İNDİRİM KUPONU"
-      });
-
-      return;
-    }
-
-    /* Dosya paylaşımı desteklenmiyorsa */
-    if (navigator.share) {
-      await navigator.share({
-        title: "İNDİRİM KUPONU",
-        text: "İNDİRİM KUPONU"
-      });
-
-      return;
-    }
-
-    alert("Bu tarayıcı görsel paylaşımını desteklemiyor.");
-
-  } catch (error) {
-
-    if (error && error.name === "AbortError") {
-      return;
-    }
-
-    console.error("Paylaşım hatası:", error);
-    alert("Görsel gönderilemedi.");
-  }
-}
 
 /* GÖRSELİ GÖNDER butonu varsa bağla */
-const shareButton =
-  document.getElementById("shareButton");
-
-if (shareButton) {
-  shareButton.addEventListener(
-    "click",
-    shareImage,
-    { passive: false }
-  );
-}
-
 /* Sağ tık / uzun basma */
 document.addEventListener(
   "contextmenu",
@@ -208,6 +138,163 @@ document.addEventListener(
     if (menu) {
       menu.classList.add("open");
     }
+  },
+  { passive: false }
+);
+
+
+/* =====================================================
+   WHATSAPP GÖRSEL PAYLAŞIMI
+   reklam.png + İNDİRİM KUPONU
+   URL PAYLAŞILMAZ
+   ===================================================== */
+
+async function shareImage() {
+
+  try {
+
+    const response = await fetch(
+      "./reklam.png",
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("reklam.png yüklenemedi");
+    }
+
+    const blob = await response.blob();
+
+    const file = new File(
+      [blob],
+      "reklam.png",
+      {
+        type: blob.type || "image/png"
+      }
+    );
+
+    /*
+      KRİTİK:
+      Burada hiçbir URL bulunmuyor.
+      WhatsApp'a sadece görsel ve
+      İNDİRİM KUPONU metni gönderiliyor.
+    */
+
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [file]
+      })
+    ) {
+
+      await navigator.share({
+
+        files: [file],
+
+        title: "İNDİRİM KUPONU",
+
+        text: "İNDİRİM KUPONU"
+
+      });
+
+      return;
+    }
+
+    /*
+      Dosya paylaşımı desteklenmezse
+      yalnızca metin paylaşılır.
+    */
+
+    if (navigator.share) {
+
+      await navigator.share({
+
+        title: "İNDİRİM KUPONU",
+
+        text: "İNDİRİM KUPONU"
+
+      });
+
+      return;
+    }
+
+    alert(
+      "Bu tarayıcı görsel paylaşımını desteklemiyor."
+    );
+
+  } catch (error) {
+
+    if (
+      error &&
+      error.name === "AbortError"
+    ) {
+      return;
+    }
+
+    console.error(
+      "Paylaşım hatası:",
+      error
+    );
+
+  }
+}
+
+
+/* =====================================================
+   GÖRSELİ GÖNDER BUTONU
+   ===================================================== */
+
+const shareButton =
+  document.getElementById(
+    "shareButton"
+  );
+
+if (shareButton) {
+
+  shareButton.addEventListener(
+    "click",
+    shareImage,
+    { passive: false }
+  );
+
+}
+
+
+/* =====================================================
+   SAĞ TIK / UZUN BASMA
+   ===================================================== */
+
+document.addEventListener(
+  "contextmenu",
+  function(event) {
+
+    const img =
+      event.target.closest("img");
+
+    if (!img) return;
+
+    event.preventDefault();
+
+    if (
+      typeof openViewer ===
+      "function"
+    ) {
+
+      openViewer(event);
+
+    }
+
+    const menu =
+      document.getElementById(
+        "shareMenu"
+      );
+
+    if (menu) {
+
+      menu.classList.add("open");
+
+    }
+
   },
   { passive: false }
 );
