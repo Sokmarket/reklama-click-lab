@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>İndirim Kuponu</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#111827;
+  font-family:Arial,sans-serif;
+}
+
+.reklam-karti{
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.reklam-gorsel{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+}
+
+.indirim-kuponu{
+  display:block;
+  width:100%;
+  padding:16px 20px;
+  background:#fff;
+  color:#111827;
+  text-align:center;
+  text-decoration:none;
+  font-size:18px;
+  font-weight:700;
+}
+
+.indirim-kuponu:active{
+  opacity:.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="reklam-karti">
+
+  <img
+    src="https://raw.githubusercontent.com/arzuoglumammad-star/resim-public/main/resim-tikla.png"
+    alt="İndirim Kuponu"
+    class="reklam-gorsel">
+
+  <a
+    href="https://arzuoglumammad-star.github.io/reklama-click-lab/"
+    class="indirim-kuponu">
+    İndirim Kuponu
+  </a>
+
+</div>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js")
+      .catch(()=>{});
+  });
+}
+</script>
+
+</body>
+</html>
