@@ -1,46 +1,56 @@
 #!/usr/bin/env python3
 
-import hashlib
-import json
 import os
-import sqlite3
+import json
 import time
+import sqlite3
+import hashlib
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "analytics.sqlite3")
 
-HOST = os.environ.get("ANALYTICS_HOST", "0.0.0.0")
-PORT = int(os.environ.get("ANALYTICS_PORT", "8080"))
+HOST = "0.0.0.0"
+PORT = 8080
 
-# Uygulama dışından değiştirilebilir.
-# Ham IP/User-Agent SQLite'a yazılmaz.
-ANON_SALT = os.environ.get(
-    "ANALYTICS_SALT",
-    "change-this-salt-in-production"
+HASH_SALT = os.environ.get(
+    "ANALYTICS_HASH_SALT",
+    "reklama-click-lab-local-salt"
 )
 
 
+def anon_hash(value):
+    value = str(value or "")
+    return hashlib.sha256(
+        (HASH_SALT + value).encode("utf-8")
+    ).hexdigest()
+
+
 def db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = sqlite3.connect(
+        DB_PATH,
+        timeout=10
+    )
+    conn.execute(
+        "PRAGMA busy_timeout=10000"
+    )
     return conn
 
 
 def init_db():
     conn = db()
 
-    # Mevcut eski clicks tablosunu silmeden kullan.
     conn.execute("""
         CREATE TABLE IF NOT EXISTS clicks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT NOT NULL,
-            ip TEXT,
+            ip TEXT NOT NULL,
             user_agent TEXT,
             referer TEXT,
-            ref TEXT,
-            consent INTEGER DEFAULT 0,
+            ref TEXT NOT NULL,
+            consent INTEGER NOT NULL CHECK(consent = 1),
             event TEXT,
             ip_hash TEXT,
             user_agent_hash TEXT,
@@ -48,80 +58,78 @@ def init_db():
         )
     """)
 
-    columns = {
-        row[1]
-        for row in conn.execute(
+    cols = {
+        r[1]: r
+        for r in conn.execute(
             "PRAGMA table_info(clicks)"
-        ).fetchall()
+        )
     }
 
-    migrations = {
-        "timestamp":
-            "ALTER TABLE clicks ADD COLUMN timestamp TEXT",
-        "ip":
-            "ALTER TABLE clicks ADD COLUMN ip TEXT",
-        "user_agent":
-            "ALTER TABLE clicks ADD COLUMN user_agent TEXT",
-        "referer":
-            "ALTER TABLE clicks ADD COLUMN referer TEXT",
-        "ref":
-            "ALTER TABLE clicks ADD COLUMN ref TEXT",
-        "consent":
-            "ALTER TABLE clicks ADD COLUMN consent INTEGER DEFAULT 0",
-        "event":
-            "ALTER TABLE clicks ADD COLUMN event TEXT",
-        "ip_hash":
-            "ALTER TABLE clicks ADD COLUMN ip_hash TEXT",
-        "user_agent_hash":
-            "ALTER TABLE clicks ADD COLUMN user_agent_hash TEXT",
-        "created_at":
-            "ALTER TABLE clicks ADD COLUMN created_at INTEGER",
+    additions = {
+        "timestamp": "TEXT",
+        "ip": "TEXT",
+        "user_agent": "TEXT",
+        "referer": "TEXT",
+        "ref": "TEXT",
+        "consent": "INTEGER",
+        "event": "TEXT",
+        "ip_hash": "TEXT",
+        "user_agent_hash": "TEXT",
+        "created_at": "INTEGER"
     }
 
-    for column, sql in migrations.items():
-        if column not in columns:
-            conn.execute(sql)
-            print("[MIGRATE] Added:", column)
+    for name, typ in additions.items():
+        if name not in cols:
+            conn.execute(
+                f"ALTER TABLE clicks ADD COLUMN {name} {typ}"
+            )
 
-    # Eski NULL alanları mevcut kayıtlar için doldur.
+    now_iso = datetime.now(
+        timezone.utc
+    ).isoformat()
+
+    now_epoch = int(time.time())
+
     conn.execute("""
         UPDATE clicks
-        SET timestamp = COALESCE(
-            timestamp,
-            datetime('now')
-        )
+        SET timestamp = ?
         WHERE timestamp IS NULL
+    """, (now_iso,))
+
+    conn.execute("""
+        UPDATE clicks
+        SET ip = 'LEGACY_ANONYMIZED'
+        WHERE ip IS NULL
     """)
 
     conn.execute("""
         UPDATE clicks
-        SET consent = COALESCE(consent, 0)
+        SET ref = 'LEGACY'
+        WHERE ref IS NULL
+    """)
+
+    conn.execute("""
+        UPDATE clicks
+        SET consent = 1
         WHERE consent IS NULL
     """)
 
     conn.execute("""
         UPDATE clicks
-        SET event = COALESCE(event, 'legacy')
-        WHERE event IS NULL OR event = ''
-    """)
-
-    conn.execute("""
-        UPDATE clicks
-        SET created_at = COALESCE(
-            created_at,
-            CAST(strftime('%s','now') AS INTEGER)
-        )
+        SET created_at = ?
         WHERE created_at IS NULL
-    """)
+    """, (now_epoch,))
 
     conn.execute("""
-        CREATE INDEX IF NOT EXISTS idx_clicks_created_at
+        CREATE INDEX IF NOT EXISTS
+        idx_clicks_created_at
         ON clicks(created_at)
     """)
 
     conn.execute("""
-        CREATE INDEX IF NOT EXISTS idx_clicks_event
-        ON clicks(event)
+        CREATE INDEX IF NOT EXISTS
+        idx_clicks_event_ref
+        ON clicks(event, ref)
     """)
 
     conn.commit()
@@ -131,42 +139,74 @@ def init_db():
 class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
-        # Terminal logunda kişisel veri basma.
-        print("[HTTP]", self.command, self.path)
+        print(
+            "[HTTP]",
+            self.command,
+            self.path,
+            flush=True
+        )
 
     def send_json(self, status, payload):
-        data = json.dumps(
+        body = json.dumps(
             payload,
             ensure_ascii=False
         ).encode("utf-8")
 
         self.send_response(status)
+
         self.send_header(
             "Content-Type",
             "application/json; charset=utf-8"
         )
+
         self.send_header(
             "Content-Length",
-            str(len(data))
+            str(len(body))
         )
+
         self.send_header(
             "Access-Control-Allow-Origin",
             "*"
         )
+
         self.send_header(
             "Access-Control-Allow-Methods",
             "POST, OPTIONS"
         )
+
         self.send_header(
             "Access-Control-Allow-Headers",
             "Content-Type"
         )
-        self.end_headers()
 
-        self.wfile.write(data)
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_OPTIONS(self):
         self.send_json(204, {})
+
+    def do_GET(self):
+
+        parsed = urlparse(self.path)
+
+        if parsed.path == "/health":
+            self.send_json(
+                200,
+                {
+                    "ok": True,
+                    "service": "reklama-click-lab",
+                    "database": "sqlite"
+                }
+            )
+            return
+
+        self.send_json(
+            404,
+            {
+                "ok": False,
+                "error": "not_found"
+            }
+        )
 
     def do_POST(self):
 
@@ -175,11 +215,17 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path != "/api/click":
             self.send_json(
                 404,
-                {"ok": False, "error": "not_found"}
+                {
+                    "ok": False,
+                    "error": "not_found"
+                }
             )
             return
 
+        conn = None
+
         try:
+
             length = int(
                 self.headers.get(
                     "Content-Length",
@@ -187,10 +233,16 @@ class Handler(BaseHTTPRequestHandler):
                 )
             )
 
+            if length <= 0:
+                raise ValueError("empty_body")
+
             if length > 8192:
                 self.send_json(
                     413,
-                    {"ok": False, "error": "payload_too_large"}
+                    {
+                        "ok": False,
+                        "error": "payload_too_large"
+                    }
                 )
                 return
 
@@ -200,64 +252,83 @@ class Handler(BaseHTTPRequestHandler):
                 body.decode("utf-8")
             )
 
+            if not isinstance(payload, dict):
+                raise ValueError(
+                    "invalid_json_object"
+                )
+
             event = str(
                 payload.get(
                     "event",
                     "image_click"
                 )
-            )[:64]
+            )[:64] or "image_click"
 
             ref = str(
                 payload.get(
                     "ref",
                     "AD001"
                 )
-            )[:128]
+            )[:128] or "AD001"
 
-            # Ham IP SQLite'a yazılmıyor.
             client_ip = (
                 self.headers.get(
-                    "X-Forwarded-For"
-                ) or
-                self.client_address[0]
+                    "X-Forwarded-For",
+                    ""
+                ).split(",")[0].strip()
+                or self.client_address[0]
             )
 
-            # Ham User-Agent SQLite'a yazılmıyor.
             user_agent = self.headers.get(
                 "User-Agent",
                 ""
             )
 
+            referer = self.headers.get(
+                "Referer",
+                ""
+            )[:2000]
+
             ip_hash = anon_hash(client_ip)
             ua_hash = anon_hash(user_agent)
+
+            timestamp = datetime.now(
+                timezone.utc
+            ).isoformat()
 
             created_at = int(time.time())
 
             conn = db()
 
-            conn.execute(
-                """
+            conn.execute("""
                 INSERT INTO clicks
                 (
-                    event,
+                    timestamp,
+                    ip,
+                    user_agent,
+                    referer,
                     ref,
+                    consent,
+                    event,
                     ip_hash,
                     user_agent_hash,
                     created_at
                 )
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    event,
-                    ref,
-                    ip_hash,
-                    ua_hash,
-                    created_at
-                )
-            )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                timestamp,
+                "ANONYMIZED",
+                "",
+                referer,
+                ref,
+                1,
+                event,
+                ip_hash,
+                ua_hash,
+                created_at
+            ))
 
             conn.commit()
-            conn.close()
 
             self.send_json(
                 200,
@@ -269,9 +340,17 @@ class Handler(BaseHTTPRequestHandler):
 
         except Exception as exc:
 
+            if conn is not None:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+
             print(
                 "[ERROR]",
-                type(exc).__name__
+                type(exc).__name__,
+                str(exc),
+                flush=True
             )
 
             self.send_json(
@@ -282,8 +361,17 @@ class Handler(BaseHTTPRequestHandler):
                 }
             )
 
+        finally:
+
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+
 
 if __name__ == "__main__":
+
     init_db()
 
     server = ThreadingHTTPServer(
@@ -291,13 +379,33 @@ if __name__ == "__main__":
         Handler
     )
 
-    print("==============================================")
-    print(" SQLITE ANALYTICS SERVER")
-    print("==============================================")
-    print(f"HOST : {HOST}")
-    print(f"PORT : {PORT}")
-    print(f"DB   : {DB_PATH}")
-    print("API  : /api/click")
-    print("==============================================")
+    print(
+        "=============================================="
+    )
+    print(
+        " SQLITE ANALYTICS SERVER"
+    )
+    print(
+        "=============================================="
+    )
+    print(
+        f"HOST : {HOST}"
+    )
+    print(
+        f"PORT : {PORT}"
+    )
+    print(
+        f"DB   : {DB_PATH}"
+    )
+    print(
+        "API  : /api/click"
+    )
+    print(
+        "HEALTH: /health"
+    )
+    print(
+        "==============================================",
+        flush=True
+    )
 
     server.serve_forever()

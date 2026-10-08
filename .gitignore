@@ -21,3 +21,6 @@ __pycache__/
 .env.*
 privacy-analytics/server.log
 privacy-analytics/analytics.sqlite3
+privacy-analytics/.runtime/
+*.backup-*
+*.before-*
