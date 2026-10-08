@@ -214,7 +214,7 @@ class Handler(BaseHTTPRequestHandler):
 connect()
 
 print("=" * 48)
-print(" REKLAMA CLICK LAB - CONSENT ANALYTICS")
+print(" REKLAMA CLICK LAB - ANALYTICS")
 print("=" * 48)
 print(f"URL    : http://{HOST}:{PORT}")
 print(f"REPORT : http://{HOST}:{PORT}/privacy-analytics/report")
