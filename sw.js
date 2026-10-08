@@ -1,25 +1,35 @@
-const CACHE="kupon-pwa-v1";
+const CACHE = "kupon-pwa-v2";
 
-self.addEventListener("install",event=>{
+const FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./sw.js"
+];
+
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE).then(cache=>
-      cache.addAll([
-        "./",
-        "./pwa-link.html",
-        "./manifest.json"
-      ])
-    )
+    caches.open(CACHE).then(cache => cache.addAll(FILES))
   );
   self.skipWaiting();
 });
 
-self.addEventListener("activate",event=>{
-  event.waitUntil(self.clients.claim());
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE)
+          .map(key => caches.delete(key))
+      )
+    )
+  );
+  self.clients.claim();
 });
 
-self.addEventListener("fetch",event=>{
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(cached=>{
+    caches.match(event.request).then(cached => {
       return cached || fetch(event.request);
     })
   );

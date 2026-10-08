@@ -1,12 +1,11 @@
 {
-  "name":"İndirim Kuponu",
-  "short_name":"Kupon",
-  "description":"İndirim kuponu PWA",
-  "start_url":"./pwa-link.html",
-  "scope":"./",
-  "display":"standalone",
-  "orientation":"portrait",
-  "background_color":"#111827",
-  "theme_color":"#111827",
-  "icons":[]
+  "name": "İndirim Kuponu",
+  "short_name": "Kupon",
+  "description": "İndirim kuponu PWA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827"
 }
