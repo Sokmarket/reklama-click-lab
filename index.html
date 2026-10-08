@@ -167,48 +167,6 @@ body{
    KAPAT BUTTON
    ================================================== */
 
-#closeViewer{
-  position:absolute;
-
-  z-index:1000000;
-
-  top:
-    max(
-      16px,
-      env(safe-area-inset-top)
-    );
-
-  right:
-    max(
-      16px,
-      env(safe-area-inset-right)
-    );
-
-  width:48px;
-  height:48px;
-
-  padding:0;
-
-  border:1px solid rgba(255,255,255,.30);
-
-  border-radius:50%;
-
-  background:rgba(0,0,0,.65);
-
-  color:#fff;
-
-  font-size:30px;
-  line-height:46px;
-
-  text-align:center;
-
-  cursor:pointer;
-
-  appearance:none;
-  -webkit-appearance:none;
-
-  touch-action:manipulation;
-}
 
 /* ==================================================
    ERİŞİLEBİLİRLİK
@@ -266,18 +224,7 @@ body.viewer-open{
   aria-hidden="true"
   role="dialog"
   aria-label="İndirim Kuponu tam ekran görüntüleyici">
-
-  <button
-    id="closeViewer"
-    type="button"
-    aria-label="Görseli kapat"
-    title="Kapat">
-
-    ×
-
-  </button>
-
-  <img
+<img
     id="fullscreenImage"
     src="./reklam.png"
     alt="İndirim Kuponu tam ekran"
@@ -303,10 +250,6 @@ const viewer =
 
 const fullscreenImage =
   document.getElementById("fullscreenImage");
-
-const closeViewer =
-  document.getElementById("closeViewer");
-
 
 /*
 ======================================================
@@ -347,10 +290,6 @@ function openViewer(event){
      Viewer zaten viewport'un tamamını
      kaplıyor.
   */
-
-  closeViewer.focus({
-    preventScroll:true
-  });
 }
 
 
@@ -402,13 +341,6 @@ adButton.addEventListener(
  KAPAT BUTTON
 ======================================================
 */
-
-closeViewer.addEventListener(
-  "click",
-  closeFullscreen,
-  {passive:false}
-);
-
 
 /*
 ======================================================
