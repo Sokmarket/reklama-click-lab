@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>A-Z Rapor Merkezi</title>
+
+<style>
+:root{
+--bg:#070a10;
+--panel:#111722;
+--panel2:#151d29;
+--border:#293344;
+--text:#f5f7fb;
+--muted:#929daf;
+--accent:#60a5fa;
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:
+system-ui,-apple-system,BlinkMacSystemFont,
+"Segoe UI",sans-serif;
+line-height:1.55;
+}
+
+main{
+width:min(1200px,100%);
+margin:auto;
+padding:16px;
+}
+
+.hero{
+padding:24px;
+margin-bottom:16px;
+border:1px solid var(--border);
+border-radius:20px;
+background:
+linear-gradient(135deg,#111827,#0b1220);
+}
+
+.badge{
+color:var(--accent);
+font-size:12px;
+font-weight:800;
+letter-spacing:.1em;
+}
+
+h1{
+margin:8px 0;
+font-size:clamp(28px,6vw,46px);
+}
+
+.hero p{
+color:var(--muted);
+margin:0;
+}
+
+.nav{
+position:sticky;
+top:8px;
+z-index:100;
+padding:10px;
+margin-bottom:18px;
+border:1px solid var(--border);
+border-radius:16px;
+background:rgba(7,10,16,.95);
+backdrop-filter:blur(12px);
+}
+
+.nav-grid{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(145px,1fr));
+gap:7px;
+}
+
+.nav a{
+display:block;
+padding:11px;
+border:1px solid var(--border);
+border-radius:10px;
+background:var(--panel);
+color:var(--text);
+text-decoration:none;
+font-size:13px;
+font-weight:700;
+}
+
+.report{
+margin-bottom:20px;
+overflow:hidden;
+border:1px solid var(--border);
+border-radius:20px;
+background:var(--panel);
+scroll-margin-top:100px;
+}
+
+.report header{
+padding:18px;
+background:var(--panel2);
+border-bottom:1px solid var(--border);
+}
+
+.report header span{
+color:var(--accent);
+font-size:11px;
+font-weight:800;
+letter-spacing:.1em;
+}
+
+.report h2{
+margin:4px 0;
+}
+
+.report small{
+color:var(--muted);
+word-break:break-all;
+}
+
+.content{
+padding:18px;
+overflow:auto;
+}
+
+.content img{
+max-width:100%;
+height:auto;
+}
+
+.content table{
+width:100%;
+border-collapse:collapse;
+}
+
+.content th,
+.content td{
+border:1px solid var(--border);
+padding:8px;
+text-align:left;
+}
+
+.content pre{
+overflow:auto;
+padding:12px;
+border-radius:10px;
+background:#080c13;
+}
+
+.missing{
+padding:15px;
+border:1px solid #713044;
+border-radius:10px;
+color:#fb7185;
+}
+
+footer{
+padding:25px;
+text-align:center;
+color:var(--muted);
+font-size:12px;
+}
+
+@media(max-width:600px){
+main{padding:10px}
+.hero{padding:18px}
+.content{padding:12px}
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<div id="top" class="hero">
+<span class="badge">HTML5 • A-Z RAPOR</span>
+
+<h1>A-Z Rapor Merkezi</h1>
+
+<p>
+Reklama Click Lab içerisindeki ana sayfa,
+raporlar, çıktılar ve IPv4 / IPv6 OSINT
+bilgileri tek HTML5 dosyasında.
+</p>
+
+<p>
+Oluşturulma:
+2026-10-08 05:00
+</p>
+</div>
+
+<nav class="nav">
+<div class="nav-grid">
+<a href="#rapor-1">1. ANA SAYFA</a>
+<a href="#rapor-2">2. GITHUB RAPORU</a>
+<a href="#rapor-3">3. CIKTILAR RAPORU</a>
+<a href="#rapor-4">4. CIKTILAR GITHUB RAPORU</a>
+<a href="#rapor-5">5. OSINT IPv4 / IPv6</a>
+</div>
+</nav>
+
+
+<section id="rapor-1" class="report">
+<header>
+  <span>RAPOR 1</span>
+  <h2>ANA SAYFA</h2>
+  <small>index.html</small>
+</header>
+<div class="content">
+
+<a id="clickTarget"
+   href="./privacy-analytics/?ref=AD001"
+   aria-label="İndirim Kuponu — görüntülemek için tıklayın">
+  <img
+    src="./reklam.png"
+    alt="İndirim Kuponu"
+    draggable="false">
+</a>
+<script>
+"use strict";
+const target=document.getElementById("clickTarget");
+if(location.hostname.endsWith(".github.io")){
+  target.href="./github-report.html?ref=AD001";
+}
+</script>
+<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
+<style id="osint-ip-menu-style">
+.osint-ip-link{
+  display:block;
+  margin:16px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#111722;
+  border:1px solid #252d3a;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+}
+</style>
+
+</body>
+</div>
+</section>
+
+<section id="rapor-2" class="report">
+<header>
+  <span>RAPOR 2</span>
+  <h2>GITHUB RAPORU</h2>
+  <small>github-report.html</small>
+</header>
+<div class="content">
+
+
+<div class="app">
+
+<div class="header">
+<div class="title">BROWSER TECHNICAL REPORT</div>
+<div class="status" id="status">Hazır</div>
+</div>
+
+<div class="card">
+<div class="section">SYSTEM</div>
+
+<div class="row">
+<div class="label">Platform</div>
+<div class="value">GitHub Pages</div>
+</div>
+
+<div class="row">
+<div class="label">Mode</div>
+<div class="value ok">Consent-based analytics</div>
+</div>
+
+<div class="row">
+<div class="label">Backend</div>
+<div class="value">Harici backend gerekli</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section">FINGERPRINT</div>
+
+<div class="row">
+<div class="label">Browser</div>
+<div class="value" id="browser">—</div>
+</div>
+
+<div class="row">
+<div class="label">Platform</div>
+<div class="value" id="platform">—</div>
+</div>
+
+<div class="row">
+<div class="label">Language</div>
+<div class="value" id="language">—</div>
+</div>
+
+<div class="row">
+<div class="label">Screen</div>
+<div class="value" id="screen">—</div>
+</div>
+
+<div class="row">
+<div class="label">Viewport</div>
+<div class="value" id="viewport">—</div>
+</div>
+
+<div class="row">
+<div class="label">Timezone</div>
+<div class="value" id="timezone">—</div>
+</div>
+
+<div class="row">
+<div class="label">Touch</div>
+<div class="value" id="touch">—</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section">REPORT</div>
+
+<div class="row">
+<div class="label">REF</div>
+<div class="value" id="ref">A001</div>
+</div>
+
+<div class="row">
+<div class="label">Time</div>
+<div class="value" id="time">—</div>
+</div>
+</div>
+
+</div>
+
+<script>
+const q=new URLSearchParams(location.search);
+
+document.getElementById("browser").textContent=navigator.userAgent;
+document.getElementById("platform").textContent=navigator.platform||"N/A";
+document.getElementById("language").textContent=navigator.language||"N/A";
+document.getElementById("screen").textContent=screen.width+"x"+screen.height;
+document.getElementById("viewport").textContent=innerWidth+"x"+innerHeight;
+document.getElementById("timezone").textContent=
+Intl.DateTimeFormat().resolvedOptions().timeZone||"N/A";
+document.getElementById("touch").textContent=
+navigator.maxTouchPoints>0?"Evet":"Hayır";
+document.getElementById("ref").textContent=
+q.get("ref")||"A001";
+document.getElementById("time").textContent=
+new Date().toLocaleString("tr-TR");
+</script>
+
+<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
+<style id="osint-ip-menu-style">
+.osint-ip-link{
+  display:block;
+  margin:16px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#111722;
+  border:1px solid #252d3a;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+}
+</style>
+
+
+</div>
+</section>
+
+<section id="rapor-3" class="report">
+<header>
+  <span>RAPOR 3</span>
+  <h2>CIKTILAR RAPORU</h2>
+  <small>ciktilar/index.html</small>
+</header>
+<div class="content">
+
+
+<main>
+
+<header>
+<h1>HTML5 Rapor Arşivi</h1>
+<div class="sub">
+Tüm raporlar numaralandırılmış şekilde saklanır.
+</div>
+</header>
+
+<article>
+  <div class="number">Rapor #001</div>
+  <a class="open" href="./001.html">Aç</a>
+</article>
+<article>
+  <div class="number">Rapor #002</div>
+  <a class="open" href="./002.html">Aç</a>
+</article>
+<header>
+<div class="sub">Toplam rapor: 2</div>
+</header>
+
+</main>
+<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
+<style id="osint-ip-menu-style">
+.osint-ip-link{
+  display:block;
+  margin:16px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#111722;
+  border:1px solid #252d3a;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+}
+</style>
+
+
+</div>
+</section>
+
+<section id="rapor-4" class="report">
+<header>
+  <span>RAPOR 4</span>
+  <h2>CIKTILAR GITHUB RAPORU</h2>
+  <small>ciktilar/github-report.html</small>
+</header>
+<div class="content">
+
+
+<div class="app">
+
+<div class="header">
+<div class="title">BROWSER TECHNICAL REPORT</div>
+<div class="status" id="status">Hazır</div>
+</div>
+
+<div class="card">
+<div class="section">SYSTEM</div>
+
+<div class="row">
+<div class="label">Platform</div>
+<div class="value">GitHub Pages</div>
+</div>
+
+<div class="row">
+<div class="label">Mode</div>
+<div class="value ok">Consent-based analytics</div>
+</div>
+
+<div class="row">
+<div class="label">Backend</div>
+<div class="value">Harici backend gerekli</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section">FINGERPRINT</div>
+
+<div class="row">
+<div class="label">Browser</div>
+<div class="value" id="browser">—</div>
+</div>
+
+<div class="row">
+<div class="label">Platform</div>
+<div class="value" id="platform">—</div>
+</div>
+
+<div class="row">
+<div class="label">Language</div>
+<div class="value" id="language">—</div>
+</div>
+
+<div class="row">
+<div class="label">Screen</div>
+<div class="value" id="screen">—</div>
+</div>
+
+<div class="row">
+<div class="label">Viewport</div>
+<div class="value" id="viewport">—</div>
+</div>
+
+<div class="row">
+<div class="label">Timezone</div>
+<div class="value" id="timezone">—</div>
+</div>
+
+<div class="row">
+<div class="label">Touch</div>
+<div class="value" id="touch">—</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section">REPORT</div>
+
+<div class="row">
+<div class="label">REF</div>
+<div class="value" id="ref">A001</div>
+</div>
+
+<div class="row">
+<div class="label">Time</div>
+<div class="value" id="time">—</div>
+</div>
+</div>
+
+</div>
+
+<script>
+const q=new URLSearchParams(location.search);
+
+document.getElementById("browser").textContent=navigator.userAgent;
+document.getElementById("platform").textContent=navigator.platform||"N/A";
+document.getElementById("language").textContent=navigator.language||"N/A";
+document.getElementById("screen").textContent=screen.width+"x"+screen.height;
+document.getElementById("viewport").textContent=innerWidth+"x"+innerHeight;
+document.getElementById("timezone").textContent=
+Intl.DateTimeFormat().resolvedOptions().timeZone||"N/A";
+document.getElementById("touch").textContent=
+navigator.maxTouchPoints>0?"Evet":"Hayır";
+document.getElementById("ref").textContent=
+q.get("ref")||"A001";
+document.getElementById("time").textContent=
+new Date().toLocaleString("tr-TR");
+</script>
+
+<a href="./osint-menu/index.html" class="osint-ip-link">OSINT IP MENÜ</a>
+<style id="osint-ip-menu-style">
+.osint-ip-link{
+  display:block;
+  margin:16px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#111722;
+  border:1px solid #252d3a;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+}
+</style>
+
+
+</div>
+</section>
+
+<section id="rapor-5" class="report">
+<header>
+  <span>RAPOR 5</span>
+  <h2>OSINT IPv4 / IPv6</h2>
+  <small>osint-menu/index.html</small>
+</header>
+<div class="content">
+
+
+<main>
+
+<h1>OSINT IP MENÜ</h1>
+<div class="subtitle">IPv4 / IPv6 bağlantı bilgisi</div>
+
+<div class="card">
+<div class="label">IPv4</div>
+<div class="value" id="ipv4">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">IPv6</div>
+<div class="value" id="ipv6">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">IP Sürümü</div>
+<div class="value ok" id="version">Kontrol ediliyor...</div>
+</div>
+
+<div class="card">
+<div class="label">Durum</div>
+<div class="value" id="status">IP servisleri kontrol ediliyor...</div>
+</div>
+
+<button onclick="getIP()">YENİDEN KONTROL ET</button>
+
+<div class="note">
+IP bilgisi, ziyaretçinin tarayıcısından IPv4/IPv6 test servisleri
+aracılığıyla alınır. IPv6 bağlantısı olmayan ağlarda IPv6 bulunamayabilir.
+</div>
+
+</main>
+
+<script>
+async function getIP(){
+
+  const ipv4=document.getElementById("ipv4");
+  const ipv6=document.getElementById("ipv6");
+  const version=document.getElementById("version");
+  const status=document.getElementById("status");
+
+  ipv4.textContent="Kontrol ediliyor...";
+  ipv6.textContent="Kontrol ediliyor...";
+  version.textContent="Kontrol ediliyor...";
+  status.textContent="Kontrol ediliyor...";
+
+  let has4=false;
+  let has6=false;
+
+  try{
+    const r4=await fetch(
+      "https://api4.ipify.org?format=json",
+      {cache:"no-store"}
+    );
+
+    if(r4.ok){
+      const data4=await r4.json();
+
+      if(data4.ip){
+        ipv4.textContent=data4.ip;
+        has4=true;
+      }
+    }
+  }catch(e){
+    ipv4.textContent="IPv4 alınamadı";
+  }
+
+  try{
+    const r6=await fetch(
+      "https://api6.ipify.org?format=json",
+      {cache:"no-store"}
+    );
+
+    if(r6.ok){
+      const data6=await r6.json();
+
+      if(data6.ip){
+        ipv6.textContent=data6.ip;
+        has6=true;
+      }
+    }
+  }catch(e){
+    ipv6.textContent="IPv6 bulunamadı";
+  }
+
+  if(!has4 && ipv4.textContent==="Kontrol ediliyor...")
+    ipv4.textContent="IPv4 bulunamadı";
+
+  if(!has6 && ipv6.textContent==="Kontrol ediliyor...")
+    ipv6.textContent="IPv6 bulunamadı";
+
+  if(has4 && has6)
+    version.textContent="IPv4 + IPv6";
+  else if(has6)
+    version.textContent="IPv6";
+  else if(has4)
+    version.textContent="IPv4";
+  else
+    version.textContent="Tespit edilemedi";
+
+  status.textContent =
+    (has4 || has6)
+      ? "IP bilgisi alındı"
+      : "IP bilgisi alınamadı";
+}
+
+getIP();
+</script>
+
+<
+</div>
+</section>
+
+
+<footer>
+A-Z Rapor Merkezi • Reklama Click Lab
+</footer>
+
+</main>
+
+</body>
+</html>
